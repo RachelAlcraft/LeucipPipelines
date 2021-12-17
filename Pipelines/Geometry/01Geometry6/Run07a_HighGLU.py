@@ -1,0 +1,67 @@
+#@@@ PIPELINE PARMAMETERS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ID = 'GLU_GEO6_HIGH'
+PdbFile = '../../0ConfigData/Pdbs_Under1_good.csv'
+GeoA2 = ":(FE,S,N,O)+1"
+GeoB2 = ":(FE,S,N,O@2)+1"
+GeoC2 = ":(FE,S,N,O@3)+1"
+GeoD2 = ":(FE,S,N,O@4)+1"
+GeoE2 = ":(FE,S,N,O@5)+1"
+GeoF2 = ":(FE,S,N,O@6)+1"
+GeoAx = "OE:CC1"
+GeoBx = "OE:CC2"
+GeoCx = "OE:CC3"
+GeoDx = "OE:CC4"
+GeoEx = "OE:CC5"
+GeoFx = "OE:CC6"
+Inclusions = {'aa':['GLU']}
+Exclusions = {}
+GeoAMin, GeoAMax = -1,-1
+GeoBMin,GeoBMax = -1,-1
+GeoCMin,GeoCMax = -1,-1
+HB = [3,3,3,3,3,3]
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+CAP = -1
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ExePath ='C:/Dev/Github/PsuMaxima/Linux/out/build/x64-Release/PsuMaxima.exe'
+Ccp4Directory = "C:/Dev/Github/ProteinDataFiles/ccp4_data/"
+PdbDirectory = "C:/Dev/Github/ProteinDataFiles/pdb_data/"
+LogDirectory = "C:/Dev/Github/ProteinDataFiles/LeicippusTesting/Log/"
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+import pandas as pd
+import A01MakeCsv as A01
+import A02CreateHtml as A02
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+make,report = False,True
+
+if make:
+    A01.runMakeCsv(ID + '_OE1',PdbFile,CAP,PdbDirectory,'OE1'+GeoA2,'OE1'+GeoB2,'OE1'+GeoC2,'OE1'+GeoD2,'OE1'+GeoE2,'OE1'+GeoF2,GeoAx,GeoBx,GeoCx,GeoDx,GeoEx,GeoFx,GeoAMin,GeoAMax,GeoBMin,GeoBMax,GeoCMin,GeoCMax,Inclusions,Exclusions)
+    A01.runMakeCsv(ID + '_OE2',PdbFile,CAP,PdbDirectory,'OE2'+GeoA2,'OE2'+GeoB2,'OE2'+GeoC2,'OE2'+GeoD2,'OE2'+GeoE2,'OE2'+GeoF2,GeoAx,GeoBx,GeoCx,GeoDx,GeoEx,GeoFx,GeoAMin,GeoAMax,GeoBMin,GeoBMax,GeoCMin,GeoCMax,Inclusions,Exclusions)
+
+df_geometryOE1 = pd.read_csv("Csv/" + ID + "_OE1_03_Geometry.csv")
+df_geometryOE2 = pd.read_csv("Csv/" + ID + "_OE2_03_Geometry.csv")
+
+df_geometryOE1 = df_geometryOE1[['pdb_code','resolution','chain','aa','rid','bfactor','occupancy',GeoAx,GeoBx,GeoCx,GeoDx,GeoEx,GeoFx,'atom','ridA','aaA','chainA','atomA','ridB','aaB','chainB','atomB','ridC','aaC','chainC','atomC','ridD','aaD','chainD','atomD','ridE','aaE','chainE','atomE','ridF','aaF','chainF','atomF','CLASS','InfoA','InfoB','InfoC','InfoD','InfoE','InfoF']]
+df_geometryOE2 = df_geometryOE2[['pdb_code','resolution','chain','aa','rid','bfactor','occupancy',GeoAx,GeoBx,GeoCx,GeoDx,GeoEx,GeoFx,'atom','ridA','aaA','chainA','atomA','ridB','aaB','chainB','atomB','ridC','aaC','chainC','atomC','ridD','aaD','chainD','atomD','ridE','aaE','chainE','atomE','ridF','aaF','chainF','atomF','CLASS','InfoA','InfoB','InfoC','InfoD','InfoE','InfoF']]
+
+df_geometry = pd.concat([df_geometryOE1,df_geometryOE2])
+df_geometry.to_csv("Csv/" + ID + "_03_Geometry.csv", index=False)
+
+# now we want to make 2 reports, one where there are 2 close contacts and one where there are not
+df_geometry2 = df_geometry.query('`' + GeoAx + '` < ' + str(3))
+df_geometry2 = df_geometry2.query('`' + GeoBx + '` < ' + str(3))
+
+df_geometry0 = df_geometry.query('`' + GeoBx + '` >= ' + str(3))
+
+if report:
+    A02.runCreateReportAnalysis(df_geometry, ID + '', GeoAx, GeoBx, GeoCx, GeoDx, GeoEx, GeoFx, HB)
+    A02.runCreateReport(df_geometry2,ID+'_2C',GeoAx,GeoBx,GeoCx,GeoDx,GeoEx,GeoFx,HB)
+
+
+
+
+
+
+
