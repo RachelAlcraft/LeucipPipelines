@@ -48,12 +48,16 @@ def applyDetailFromOther(detail,other,pos):
     if detail == 'AA':
         return aa
     return ''
-
-def applyOther_rem(other):
-    oths = other.split('_')
-    otha = getAA(oths[1])[0]
-    othb =oths[1].split('|')[1]
-    return otha + "_" + othb
+def applyALPHALINK(pdb_code):
+    #AF-A0A6M3QH40-F1-model_v2
+    afs = pdb_code.split('-')
+    if len(afs) > 1:
+        af = afs[1]
+        lnk = 'https://alphafold.ebi.ac.uk/entry/' + af
+        html = '<a target="_blank" href="' + lnk + '">EBI Link</a>'
+        return html
+    else:
+        return pdb_code
 def applyGap_rem(other):
     #LYS72A|NZ_HOH661A|O
     oths = other.split('_')
@@ -88,7 +92,7 @@ def applyCOORDS(leuDF,atomsdata, pdb_code,info, pos):
     aa1,x1,atom1 = ab[0],ab[1],ab[2]
     chain1 = x1[-1]
     rid1 = int(x1[:-1])
-    print(info,pdb_code,chain1,aa1,atom1,rid1)
+    #print(info,pdb_code,chain1,aa1,atom1,rid1)
     sp_filtered1 = leuDF.filterDataFrame(atomsdata, inclusions={'pdb_code': [pdb_code], 'chain': [chain1], 'aa': [aa1], 'atom_name': [atom1],'rid': [rid1]})
     if len(sp_filtered1.index) > 0:
         cx, cy, cz = str(round(sp_filtered1['x'].iloc[0],8)), str(round(sp_filtered1['y'].iloc[0],8)), str(round(sp_filtered1['z'].iloc[0],8))
