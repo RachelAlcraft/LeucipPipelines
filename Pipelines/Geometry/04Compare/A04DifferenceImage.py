@@ -146,7 +146,7 @@ def createIdealisedDifferencePlot(geoX,geoY,dataA):
                 stat += abs(arDiff[i, j])
 
 
-    print(geoX,geoY,stat,count)
+    #print(geoX,geoY,stat,count)
     stat = stat/count
     stat = math.sqrt(stat)
 

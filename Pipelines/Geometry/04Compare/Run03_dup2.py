@@ -5,7 +5,7 @@ import gc
 from dask import delayed  # this module wraps the multithreading
 
 ####  User inputs  #########################################################
-order_geo_list,make_html = True,True
+order_geo_list,make_html = False,True
 runs = [] #ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlir_cut
 runs.append(['Correlation_TAU','PW_High_GLY_02_Geometry.csv','N:CA:C',['GLY'],[],'bfactor','',[],41,25])
 runs.append(['Correlation_TAUm1','PW_High_GLY_02_Geometry.csv','C-1:N:CA',['GLY'],[],'bfactor','',[],41,25])
@@ -20,7 +20,9 @@ aa_NO_gly = ['ALA','CYS','ASP','GLU','PHE','HIS','ILE','LYS','LEU','MET','ASN','
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 ###   THREAD WORK    #########################################
+### https://stackoverflow.com/questions/1316767/how-can-i-explicitly-free-memory-in-python
 def f(ID,geoA,hue,tag,chunk,outlier_cut,start_count,end_count,allgeos):  # the processing function
+    print('---Inside thread for',ID,geoA,start_count,end_count,len(allgeos))
     geos = allgeos[start_count:end_count]
     list_by_stats = []
 
@@ -29,7 +31,7 @@ def f(ID,geoA,hue,tag,chunk,outlier_cut,start_count,end_count,allgeos):  # the p
         count += 1
         if geoA != geoB:
             # First make the appropriate distributions
-            print('Make distribution difference for', geoB, count, '/', len(geos))
+            #print('---Make distribution difference for', geoB, count, '/', len(geos))
             df_col = df_geometryB.sort_values(by=geoB, ascending=True)
             df_col = df_col.iloc[outlier_cut:, :]
             df_col = df_col.sort_values(by=geoB, ascending=False)
@@ -50,11 +52,9 @@ def f(ID,geoA,hue,tag,chunk,outlier_cut,start_count,end_count,allgeos):  # the p
             # sorted_list_by_stats.append([geoB, arA, arB, arDiff, minv, maxv, stat, arA1, arB1, arDiff1, minv1, maxv1, stat1])
             list_by_stats.append([geoB, arA, arB, arDiff, minv, maxv, stat, arDiffSq])
 
-    print('sort list to most dependent at the top')
-
     html_name = 'Html/' + ID + aa + tag + '_Dependency_' + str(start_count) + '_' + str(end_count) + '.html'
     title = geoA + ": search for dependent variables, using correlation metric"
-    print(ID, ' Creating HTML files #############################')
+    print('---',ID, ' Creating HTML files #############################')
 
     from LeucipPy import GeoHTML as ghm
     georep = ghm.GeoHTML(title, html_name, cols=5)
@@ -64,7 +64,7 @@ def f(ID,geoA,hue,tag,chunk,outlier_cut,start_count,end_count,allgeos):  # the p
     for geoB, arA, arB, arDiff, minv, maxv, stat, arDiffSq in list_by_stats:
         count += 1
 
-        print('Making html', geoA, geoB, count, '/', chunk, end_count, '/', len(allgeos))
+        print('---Making html', geoA, geoB, count, '/', chunk, end_count, '/', len(allgeos))
 
         georep.addLineComment('Geos= (' + geoA + ' , ' + geoB + ') - Correlation statistic=' + str(round(stat, 5)))
 
@@ -107,7 +107,7 @@ def f(ID,geoA,hue,tag,chunk,outlier_cut,start_count,end_count,allgeos):  # the p
         georep.addSurface(arB, 'Convolved plot', cmin=0, cmax=maxv, palette='Reds', colourbar=True)
 
 
-    print('Saved to', html_name)
+    print('---Saved to', html_name)
     georep.printReport()
 
 ##  MAIN   ###################################################
@@ -124,9 +124,10 @@ import A04DifferenceImage as A04
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 start = datetime.now()
 
+partial_result_list = []
 for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
 
-    print('Loading dataframe',csv)
+    print('---Loading dataframe',csv)
     df_geometryAll = pd.read_csv("Csv/" + csv)
     for aa in aa_inc:
         if aa != 'ALL':
@@ -197,12 +198,17 @@ for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
                 if end_count >  len(allgeos):
                     end_count = len(allgeos)
                 print('Starting thread',geoA,start_count,end_count,len(allgeos))
+                partial_result = delayed([])  # put into the delayed() the constructor for your data structure
                 partial_result = delayed(f)(ID,geoA,hue,tag,chunk,outlier_cut,start_count,end_count,allgeos)
+                partial_result_list.append(partial_result)
                 start_count += chunk
                 end_count += chunk
 
 
-result = partial_result.compute()
+print('compute')
+for pr in partial_result_list:
+    result = pr.compute()
+
 
 
 print('Total time was...')
