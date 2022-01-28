@@ -129,3 +129,7 @@ def applyID(aa1,rid1,chain1,atom1,aa2,rid2,chain2,atom2,aa3,rid3,chain3,atom3):
     id1 += "_" + aa3 + str(rid3) + chain3 + "." + atom3
     return id1
 
+# geranl helper functions
+def printTime(start,end,comment=''):
+    time_diff = end - start
+    print('Time taken (hh:mm:ss.ms) {}'.format(time_diff),comment)

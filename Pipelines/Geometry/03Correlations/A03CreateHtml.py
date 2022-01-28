@@ -40,10 +40,16 @@ def createHtmlFromPairs(name,ext,data,pairs,geos):
     data['Probability'] = data['bfactor']
 
     georep = ghm.GeoHTML(title, html_name, cols=3)
-    georep.changeColNumber(len(pairs))
+    georep.addLineComment(name + ', histograms')
+    for geox in geos:
+        print(geox)
+        georep.addPlot1d(data,'histogram',geox)
+
+    #georep.changeColNumber(len(pairs))
     print(' ...  Line 1 Pairs  #############################')
-    georep.addLineComment(name + ' Proteome, histograms')
+    georep.addLineComment(name + ', scatters')
     for geox,geoy in pairs:
+        print(geox,geoy)
         georep.addPlot2d(data,'seaborn',geo_x=geox,geo_y=geoy,hue='aa')
 
     #filter extremes
@@ -63,3 +69,20 @@ def createHtmlFromPairs(name,ext,data,pairs,geos):
     georep.printReport()
     print("Saved report to",html_name)
 
+def createHtmlFromTriples(name,ext,data,triples):
+    html_name = 'Html/' + name + "_" + ext + '_Scatters.html'
+    title = name + ": Explore Geometry from " + name
+    print(name, ' Creating HTML files #############################')
+    data['Probability'] = data['bfactor']
+
+    georep = ghm.GeoHTML(title, html_name, cols=3)
+    print(' ...  Line 1 triples  #############################')
+    georep.addLineComment(name + ' triples')
+    for geoA,geoB,geoC in triples:
+        print(geoA,geoB,geoC)
+        georep.addPlot2d(data,'scatter',geo_x=geoA,geo_y=geoB,hue=geoC,palette='rainbow')
+        georep.addPlot2d(data, 'scatter', geo_x=geoB, geo_y=geoC, hue=geoA, palette='rainbow')
+        georep.addPlot2d(data, 'scatter', geo_x=geoC, geo_y=geoA, hue=geoB, palette='rainbow')
+
+    georep.printReport()
+    print("Saved report to",html_name)

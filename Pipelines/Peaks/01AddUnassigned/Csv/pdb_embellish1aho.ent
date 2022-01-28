@@ -1,0 +1,7 @@
+REMARK   1 Unassigned peaks for 1aho calculated by Leucippus (Birkbeck University of London 2021).
+REMARK   2 Software developed by Rachel Alcraft (2021) - supervisor Mark A. Williams.
+REMARK   3 Unassigned peaks >1A and <5A from nearest atom, added as dummy HEATAMS.
+REMARK   4 All atoms have dummy type PK; element H; and chain P.
+REMARK   5 Residue DEN is for density calculated peaks and LAP for laplacian calculated.
+MASTER        5    0    0    0    0    0    0    0    0    0    0    0
+END

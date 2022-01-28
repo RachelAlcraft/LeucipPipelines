@@ -1,0 +1,63 @@
+REMARK   1 Unassigned peaks for 1pjx calculated by Leucippus (Birkbeck University of London 2021).
+REMARK   2 Software developed by Rachel Alcraft (2021) - supervisor Mark A. Williams.
+REMARK   3 Unassigned peaks >1A and <5A from nearest atom, added as dummy HEATAMS.
+REMARK   4 All atoms have dummy type PK; element H; and chain P.
+REMARK   5 Residue DEN is for density calculated peaks and LAP for laplacian calculated.
+HETATM    1 PK   DEN P   1      18.891   8.058  -5.604  1.00  0.95           H  
+HETATM    2 PK   DEN P   2       8.568  19.041  24.655  1.00  0.85           H  
+HETATM    3 PK   DEN P   3       8.913  14.121  33.215  1.00  0.67           H  
+HETATM    4 PK   DEN P   4       8.851  14.053  33.253  1.00  0.67           H  
+HETATM    5 PK   DEN P   5      -1.574  19.696  19.596  1.00  0.60           H  
+HETATM    6 PK   DEN P   6      21.037 -25.420  16.811  1.00  0.55           H  
+HETATM    7 PK   DEN P   7      -5.601  -6.936  16.449  1.00  0.54           H  
+HETATM    8 PK   DEN P   8       8.858  12.774  33.932  1.00  0.53           H  
+HETATM    9 PK   DEN P   9      -5.698  -3.142  26.844  1.00  0.45           H  
+HETATM   10 PK   DEN P  10      -6.132  -5.932  16.319  1.00  0.43           H  
+HETATM   11 PK   DEN P  11      20.043  10.895  35.397  1.00  0.43           H  
+HETATM   12 PK   DEN P  12      18.590  -0.239  19.888  1.00  0.42           H  
+HETATM   13 PK   DEN P  13      34.143   3.160   4.458  1.00  0.40           H  
+HETATM   14 PK   DEN P  14       6.941  24.125  19.772  1.00  0.41           H  
+HETATM   15 PK   DEN P  15       7.437  18.607  26.134  1.00  0.38           H  
+HETATM   16 PK   DEN P  16       5.389   9.020  37.412  1.00  0.38           H  
+HETATM   17 PK   DEN P  17       5.173   8.891  38.289  1.00  0.37           H  
+HETATM   18 PK   DEN P  18      22.026  16.540   4.858  1.00  0.33           H  
+HETATM   19 PK   DEN P  19       4.649   9.115  39.445  1.00  0.33           H  
+HETATM   20 PK   DEN P  20      21.794  16.592   4.946  1.00  0.32           H  
+HETATM   21 PK   DEN P  21       3.599 -22.836   6.222  1.00  0.31           H  
+HETATM   22 PK   DEN P  22       6.051 -16.868  32.536  1.00  0.30           H  
+HETATM   23 PK   DEN P  23      27.925 -21.356  17.517  1.00  0.30           H  
+HETATM   24 PK   DEN P  24       7.161  25.672  19.346  1.00  0.28           H  
+HETATM   25 PK   DEN P  25      35.677   3.101   3.905  1.00  0.26           H  
+HETATM   26 PK   DEN P  26      10.666 -25.319   0.728  1.00  0.26           H  
+HETATM   27 PK   DEN P  27      24.776  10.616  26.260  1.00  0.26           H  
+HETATM   28 PK   DEN P  28       6.678  26.140  19.887  1.00  0.25           H  
+HETATM   29 PK   DEN P  29      -6.374  10.982  33.237  1.00  0.24           H  
+HETATM   30 PK   DEN P  30       6.316 -19.852   1.415  1.00  0.24           H  
+HETATM   31 PK   DEN P  31      28.702 -18.107   7.539  1.00  0.23           H  
+HETATM   32 PK   DEN P  32      12.260 -23.810  -0.061  1.00  0.24           H  
+HETATM   33 PK   DEN P  33      20.979 -17.878  37.083  1.00  0.20           H  
+HETATM   34 PK   DEN P  34       4.921 -19.909   1.389  1.00  0.20           H  
+HETATM   35 PK   DEN P  35      22.215 -16.539  34.704  1.00  0.21           H  
+HETATM   36 PK   DEN P  36      12.754 -27.040   1.363  1.00  0.18           H  
+HETATM   37 PK   DEN P  37      19.858  -6.739  38.889  1.00  0.18           H  
+HETATM   38 PK   DEN P  38       6.745 -17.789   0.236  1.00  0.17           H  
+HETATM   39 PK   DEN P  39      -8.026   5.957  37.485  1.00  0.16           H  
+HETATM   40 PK   DEN P  40       6.200 -18.379  -0.912  1.00  0.17           H  
+HETATM   41 PK   DEN P  41      20.635  -6.845  38.046  1.00  0.16           H  
+HETATM   42 PK   DEN P  42      32.111  -1.136   1.071  1.00  0.14           H  
+HETATM   43 PK   DEN P  43      18.258  14.068  28.407  1.00  0.20           H  
+HETATM   44 PK   DEN P  44       9.513 -25.481   1.027  1.00  0.14           H  
+HETATM   45 PK   DEN P  45       9.527 -24.642   1.536  1.00  0.12           H  
+HETATM   46 PK   DEN P  46      21.177 -16.550  34.917  1.00  0.12           H  
+HETATM   47 PK   DEN P  47      32.197  -0.586   1.662  1.00  0.13           H  
+HETATM   48 PK   DEN P  48      31.409  -1.321   1.222  1.00  0.13           H  
+HETATM   49 PK   DEN P  49       9.954 -25.409   2.132  1.00  0.12           H  
+HETATM   50 PK   DEN P  50      -1.693  11.759   5.720  1.00  0.39           H  
+HETATM   51 PK   DEN P  51      26.733 -24.518  23.786  1.00  0.10           H  
+HETATM   52 PK   DEN P  52      11.135   5.078  12.508  1.00  0.25           H  
+HETATM   53 PK   DEN P  53      -0.665   4.556  38.189  1.00  0.18           H  
+HETATM   54 PK   DEN P  54      -1.831  20.143  19.687  1.00  0.45           H  
+HETATM   55 PK   DEN P  55       9.486 -23.781  -2.016  1.00  0.03           H  
+HETATM   56 PK   DEN P  56       7.364 -17.774   1.744  1.00  0.02           H  
+MASTER        5    0    0    0    0    0    0    0   56    0    0    0
+END
