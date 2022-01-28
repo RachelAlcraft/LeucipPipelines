@@ -14,11 +14,12 @@ from Class01Html import PlotThread
 ####  User inputs  #########################################################
 order_geo_list,make_html = False,True
 runs = [] #ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlir_cut
-runs.append(['Correlation_TAU','PW_High_GLY_02_Geometry.csv','N:CA:C',['GLY'],[],'bfactor','',[],41,25])
-runs.append(['Correlation_TAUm1','PW_High_GLY_02_Geometry.csv','C-1:N:CA',['GLY'],[],'bfactor','',[],41,25])
-runs.append(['Correlation_TAUp1','PW_High_GLY_02_Geometry.csv','CA:C:N+1',['GLY'],[],'bfactor','',[],41,25])
-runs.append(['Correlation_PSI','PW_High_GLY_02_Geometry.csv','N:CA:C:N+1',['GLY'],[],'bfactor','',[],41,25])
-runs.append(['Correlation_PHI','PW_High_GLY_02_Geometry.csv','C-1:N:CA:C',['GLY'],[],'bfactor','',[],41,25])
+runs.append(['Correlation_TAU','PW_High_02_Geometry.csv','N:CA:C',[''],'','bfactor','',[],40,25])
+runs.append(['Correlation_TAU','PW_High_GLY_02_Geometry.csv','N:CA:C',['GLY'],'','bfactor','',[],41,25])
+runs.append(['Correlation_TAUm1','PW_High_GLY_02_Geometry.csv','C-1:N:CA',['GLY'],'','bfactor','',[],41,25])
+runs.append(['Correlation_TAUp1','PW_High_GLY_02_Geometry.csv','CA:C:N+1',['GLY'],'','bfactor','',[],41,25])
+runs.append(['Correlation_PSI','PW_High_GLY_02_Geometry.csv','N:CA:C:N+1',['GLY'],'','bfactor','',[],41,25])
+runs.append(['Correlation_PHI','PW_High_GLY_02_Geometry.csv','C-1:N:CA:C',['GLY'],'','bfactor','',[],41,25])
 geos_to_abs = ['CA:C:O:N+1','CA-1:C-1:N:CA','CA:C:N+1:CA+1']
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #Some filtering of the data
@@ -45,18 +46,17 @@ import A04DifferenceImage as A04
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 start = datetime.now()
 
-threads = []
-threadLock = threading.Lock()
+
 for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
 
     csv_filename = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/" + csv
     print('---Loading dataframe',csv)
     df_geometryAll = pd.read_csv(csv_filename)
-    for aa in aa_inc:
-        if aa != 'ALL':
-            df_geometryAll = df_geometryAll.query("aa == '" + aa + "'")
-        for exaa in aa_exc:
-            df_geometryAll = df_geometryAll.query("aa != '" + exaa + "'")
+    for aa_inc in aa_inc:
+        if aa_inc != '':
+            df_geometryAll = df_geometryAll.query("aa == '" + aa_inc + "'")
+        if aa_exc != '':
+            df_geometryAll = df_geometryAll.query("aa != '" + aa_exc + "'")
 
         for gabs in geos_to_abs:
             df_geometryAll[gabs] =abs(df_geometryAll[gabs])
@@ -103,10 +103,10 @@ for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
                 ordered_dic['stat'].append(stat)
 
             df_ordered = pd.DataFrame.from_dict(ordered_dic)
-            df_ordered.to_csv("C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/OrderedGeos_" + ID + aa + ".csv", index=False)
+            df_ordered.to_csv("C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/OrderedGeos_" + ID + aa_inc + ".csv", index=False)
 
         if make_html:
-            ordered_geos_csv = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/OrderedGeos_" + ID + aa + ".csv"
+            ordered_geos_csv = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/OrderedGeos_" + ID + aa_inc + ".csv"
 
             df_ordered = pd.read_csv(ordered_geos_csv)
             allgeos = df_ordered['geo'].values
@@ -115,7 +115,7 @@ for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
             while start_count < len(allgeos):
                 if end_count >  len(allgeos):
                     end_count = len(allgeos)
-                html_filename = 'C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/ThreadHtml/' + ID + aa + tag + '_Dependency_' + str(start_count) + '_' + str(end_count) + '.html'
+                html_filename = 'C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/ThreadHtml/' + ID + aa_inc + tag + '_Dependency_' + str(start_count) + '_' + str(end_count) + '.html'
 
                     # https://stackoverflow.com/questions/2046603/is-it-possible-to-run-function-in-a-subprocess-without-threading-or-writing-a-se
                 print('Starting thread', geoA, start_count, end_count, len(allgeos))
@@ -129,8 +129,10 @@ for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
                 commands2 += ' ' + geoA
                 commands2 += ' ' + str(start_count)
                 commands2 += ' ' + str(end_count)
+                commands2 += ' ' + aa_inc
+                commands2 += ' ' + aa_exc
                 print('"' + exe + '"' ,command,commands2)
-                pigP = sub.Popen([exe,command,ordered_geos_csv,csv_filename,html_filename,geoA,str(start_count),str(end_count)], stdout=sub.PIPE)
+                pigP = sub.Popen([exe,command,ordered_geos_csv,csv_filename,html_filename,geoA,str(start_count),str(end_count),aa_inc,aa_exc], stdout=sub.PIPE)
                 resultP = pigP.communicate(input=b"This is sample text.\n")
                 exe_resultP = str(resultP[0], 'utf-8')
                 pigP.kill()

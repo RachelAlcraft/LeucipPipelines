@@ -36,6 +36,12 @@ class PlotThread():
         allgeos = self.allgeos
         df_geometryB = self.df_geometryB
 
+
+        df_geometryB = df_geometryB.sort_values(by=geoA, ascending=True)
+        df_geometryB = df_geometryB.iloc[outlier_cut:, :]
+        df_geometryB = df_geometryB.sort_values(by=geoA, ascending=False)
+        df_geometryB = df_geometryB.iloc[outlier_cut:, :]
+
         geos = allgeos[start_count:end_count]
         list_by_stats = []
 
