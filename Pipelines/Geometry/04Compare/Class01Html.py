@@ -75,8 +75,8 @@ class PlotThread():
         title = geoA + ": search for dependent variables, using correlation metric"
         print('---',ID, ' Creating HTML files #############################')
 
-        from LeucipPy import GeoHTML as ghm
-        georep = ghm.GeoHTML(title, html_name, cols=5)
+        from LeucipPy import HtmlReportMaker as ghm
+        georep = ghm.HtmlReportMaker(title, html_name, cols=5)
 
         count = 0
         # for geoB,arA, arB, arDiff, minv, maxv, stat,arA1, arB1, arDiff1, minv1, maxv1, stat1 in sorted_list_by_stats:

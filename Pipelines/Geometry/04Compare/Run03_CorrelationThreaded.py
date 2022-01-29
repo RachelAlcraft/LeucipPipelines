@@ -14,12 +14,24 @@ from Class01Html import PlotThread
 ####  User inputs  #########################################################
 order_geo_list,make_html = False,True
 runs = [] #ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlir_cut
-runs.append(['Correlation_TAU','PW_High_02_Geometry.csv','N:CA:C',[''],'','bfactor','',[],40,25])
+runs.append(['Correlation_TAU','PW_High_02_Geometry.csv','N:CA:C',['PRO','ASP','LYS','TYR'],'','bfactor','',[],41,25])
+runs.append(['Correlation_TAU','PW_High_02_Geometry.csv','N:CA:C',[''],'PRO','bfactor','',[],41,25])
 runs.append(['Correlation_TAU','PW_High_GLY_02_Geometry.csv','N:CA:C',['GLY'],'','bfactor','',[],41,25])
-runs.append(['Correlation_TAUm1','PW_High_GLY_02_Geometry.csv','C-1:N:CA',['GLY'],'','bfactor','',[],41,25])
-runs.append(['Correlation_TAUp1','PW_High_GLY_02_Geometry.csv','CA:C:N+1',['GLY'],'','bfactor','',[],41,25])
+runs.append(['Correlation_PSI','PW_High_02_Geometry.csv','N:CA:C:N+1',['PRO','ASP','LYS','TYR'],'','bfactor','',[],41,25])
+runs.append(['Correlation_PSI','PW_High_02_Geometry.csv','N:CA:C:N+1',[''],'PRO','bfactor','',[],41,25])
 runs.append(['Correlation_PSI','PW_High_GLY_02_Geometry.csv','N:CA:C:N+1',['GLY'],'','bfactor','',[],41,25])
-runs.append(['Correlation_PHI','PW_High_GLY_02_Geometry.csv','C-1:N:CA:C',['GLY'],'','bfactor','',[],41,25])
+
+
+#runs.append(['Correlation_TAUm1','PW_High_02_Geometry.csv','C-1:N:CA',['PRO'],'','bfactor','',[],41,25])
+#runs.append(['Correlation_TAUp1','PW_High_02_Geometry.csv','CA:C:N+1',['PRO'],'','bfactor','',[],41,25])
+#runs.append(['Correlation_PHI','PW_High_02_Geometry.csv','C-1:N:CA:C',['PRO'],'','bfactor','',[],41,25])
+#runs.append(['Correlation_TAUm1','PW_High_02_Geometry.csv','C-1:N:CA',[''],'PRO','bfactor','',[],41,25])
+#runs.append(['Correlation_TAUp1','PW_High_02_Geometry.csv','CA:C:N+1',[''],'PRO','bfactor','',[],41,25])
+#runs.append(['Correlation_PHI','PW_High_02_Geometry.csv','C-1:N:CA:C',[''],'PRO','bfactor','',[],41,25])
+#runs.append(['Correlation_TAUm1','PW_High_GLY_02_Geometry.csv','C-1:N:CA',['GLY'],'','bfactor','',[],41,25])
+#runs.append(['Correlation_TAUp1','PW_High_GLY_02_Geometry.csv','CA:C:N+1',['GLY'],'','bfactor','',[],41,25])
+#runs.append(['Correlation_PHI','PW_High_GLY_02_Geometry.csv','C-1:N:CA:C',['GLY'],'','bfactor','',[],41,25])
+
 geos_to_abs = ['CA:C:O:N+1','CA-1:C-1:N:CA','CA:C:N+1:CA+1']
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #Some filtering of the data
@@ -44,19 +56,20 @@ import A02CreateHtml as A02
 import A03FilterAndRandomise as A03
 import A04DifferenceImage as A04
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-start = datetime.now()
+startA = datetime.now()
+startB = datetime.now()
 
-
+run_count = 0
 for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
-
+    run_count += 1
     csv_filename = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/" + csv
-    print('---Loading dataframe',csv)
-    df_geometryAll = pd.read_csv(csv_filename)
+    print(run_count,'/',len(runs),ID,geoA,aa_inc,aa_exc,csv)
+    df_geometryAllAA = pd.read_csv(csv_filename)
     for aa_inc in aa_inc:
         if aa_inc != '':
-            df_geometryAll = df_geometryAll.query("aa == '" + aa_inc + "'")
+            df_geometryAll = df_geometryAllAA.query("aa == '" + aa_inc + "'")
         if aa_exc != '':
-            df_geometryAll = df_geometryAll.query("aa != '" + aa_exc + "'")
+            df_geometryAll = df_geometryAllAA.query("aa != '" + aa_exc + "'")
 
         for gabs in geos_to_abs:
             df_geometryAll[gabs] =abs(df_geometryAll[gabs])
@@ -118,7 +131,7 @@ for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
                 html_filename = 'C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/ThreadHtml/' + ID + aa_inc + tag + '_Dependency_' + str(start_count) + '_' + str(end_count) + '.html'
 
                     # https://stackoverflow.com/questions/2046603/is-it-possible-to-run-function-in-a-subprocess-without-threading-or-writing-a-se
-                print('Starting thread', geoA, start_count, end_count, len(allgeos))
+                print('Starting subprocess', geoA, start_count, end_count, len(allgeos))
                 #exe = "C:/Program Files (x86)/Microsoft Visual Studio/Shared/Python37_64/python.exe"
                 exe = sys.executable
                 command = 'C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/ExtHtmlReport.py'
@@ -140,11 +153,12 @@ for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
                 start_count += chunk
                 end_count += chunk
                 end = datetime.now()
-                hlp.printTime(start, end)
+                hlp.printTime(startB, end)
+                startB = datetime.now()
 
 
 print('Total time was...')
 end = datetime.now()
-hlp.printTime(start,end)
+hlp.printTime(startA,end)
 
 

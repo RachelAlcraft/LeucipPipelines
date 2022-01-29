@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde
 
-bins = 50
-kde_val = 0.05
+#bins = 50
+#kde_val = 0.05
 
 def kde2D_scipy(bandwidth, axes, bins, data,geoX,geoY):
     xdata = data[geoX]
@@ -87,7 +87,7 @@ def createDifferencePlot(geoX,geoY,dataA,dataB):
 
 
 def createIdealisedDifferencePlot(geoX,geoY,dataA):
-
+    #change the kde if their are too few observations
     xMin, yMin, xMax, yMax = 0, 0, 0, 0
     if len(dataA[geoX]) > 0:
         xMin = min(dataA[geoX])
@@ -96,6 +96,12 @@ def createIdealisedDifferencePlot(geoX,geoY,dataA):
         yMin = min(dataA[geoY])
         yMax = max(dataA[geoY])
     axesA = [xMin, xMax, yMin, yMax]
+
+    bins = 50
+    if len(dataA[geoX]) < 1000:
+        bins = 10
+    elif len(dataA[geoX]) < 5000:
+        bins = 20
 
     histA,binsA = np.histogram(dataA[geoX],bins=bins,density=False)
     histB, binsC = np.histogram(dataA[geoY], bins=bins,density=False)
@@ -111,52 +117,35 @@ def createIdealisedDifferencePlot(geoX,geoY,dataA):
     for a in range(0,len(histA)):
         for b in range(0, len(histB)):
             arA[b,a] = arAA[a,b]
+            #print('2d', arA[b, a])
 
 
     arB = np.zeros((len(histB),len(histA)))
     for a in range(0,len(histA)):
         for b in range(0, len(histB)):
             arB[b,a] = histA[a] * histB[b]
+            #print('conv',arB[b, a])
 
     normB = np.linalg.norm(arB)
     arB = arB / normB
 
-    arDiff = arA - arB
-    arDiffSq = arA - arB
-    minVal,maxVal=0,0
-    for i in range(arA.shape[0]):
-        for j in range(arA.shape[1]):
-            maxVal = max(maxVal, arA[i, j])
-            minVal = min(minVal, arA[i, j])
-
-    for i in range(arB.shape[0]):
-        for j in range(arB.shape[1]):
-            maxVal = max(maxVal, arB[i, j])
-            minVal = min(minVal, arB[i, j])
-
-    stat = 0
-    count = 0
-    for i in range(arDiff.shape[0]):
-        for j in range(arDiff.shape[1]):
-            #arDiffSq[i,j] = arDiff[i,j]*arDiff[i,j]
-            arDiffSq[i, j] = abs(arDiff[i, j])
-            if arA[i, j] != 0 and arB[i, j] != 0:
+    arDiff = np.zeros((len(histB), len(histA)))
+    minVal, maxVal = 0, 0
+    stat,count = 0,0
+    for a in range(0,len(histA)):
+        for b in range(0, len(histB)):
+            arDiff[a,b] = arA[a,b] - arB[a,b]
+            maxVal = max(maxVal, arA[a,b],arB[a,b])
+            minVal = min(minVal, arA[a,b],arB[a,b])
+            if arA[a,b] != 0 and arB[a,b] != 0:
                 count += 1
-            #if arDiff[i, j] > 0:
-                stat += abs(arDiff[i, j])
+                stat += abs(arDiff[a,b])
+            #print('2d', arA[b, a], arB[a, b])
 
-
-    #print(geoX,geoY,stat,count)
     stat = stat/count
-    stat = math.sqrt(stat)
-
-    #normSq = np.linalg.norm(arDiffSq)
-    #arDiffSq = arDiffSq / normSq
-
     maxVal = max(abs(maxVal), abs(minVal))
     minVal = 0 - maxVal
-
-    return arA,arB,arDiff,minVal,maxVal, stat,arDiffSq
+    return arA,arB,arDiff,minVal,maxVal, stat,''
 
 
 
