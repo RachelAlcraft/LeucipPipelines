@@ -36,11 +36,16 @@ class PlotThread():
         allgeos = self.allgeos
         df_geometryB = self.df_geometryB
 
+        geos_to_abs = ['CA:C:O:N+1', 'CA-1:C-1:N:CA', 'CA:C:N+1:CA+1']
+
 
         df_geometryB = df_geometryB.sort_values(by=geoA, ascending=True)
         df_geometryB = df_geometryB.iloc[outlier_cut:, :]
         df_geometryB = df_geometryB.sort_values(by=geoA, ascending=False)
         df_geometryB = df_geometryB.iloc[outlier_cut:, :]
+
+        for gabs in geos_to_abs:
+            df_geometryB[gabs] =abs(df_geometryB[gabs])
 
         geos = allgeos[start_count:end_count]
         list_by_stats = []

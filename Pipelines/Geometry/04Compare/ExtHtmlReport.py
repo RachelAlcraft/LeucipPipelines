@@ -6,7 +6,7 @@ import pandas as pd
 from Class01Html import PlotThread
 
 
-def runOneHtml(ordered_geos_csv, correlation_csv, html_filename,geoA,start_count,end_count,aa_inc,aa_exc):
+def runOneHtml(ordered_geos_csv, correlation_csv, html_filename,geoA,start_count,end_count,aa_inc,aa_exc,hue):
     #print('success')
     df_ordered = pd.read_csv(ordered_geos_csv)
     allgeos = df_ordered['geo'].values
@@ -24,11 +24,11 @@ def runOneHtml(ordered_geos_csv, correlation_csv, html_filename,geoA,start_count
     if aa_exc != '':
         df_geometry = df_geometry.query("aa != '" + aa_exc + "'")
 
-    classRun = PlotThread(html_filename,'x',geoA,'bfactor',aa_inc,'',25,int(start_count),int(end_count),allgeos,df_geometry)
+    classRun = PlotThread(html_filename,'x',geoA,hue,aa_inc,'',25,int(start_count),int(end_count),allgeos,df_geometry)
     classRun.run()
 
 
 
 
 if __name__ == '__main__':
-    globals()['runOneHtml'](sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7],sys.argv[8])
+    globals()['runOneHtml'](sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7],sys.argv[8],sys.argv[9])

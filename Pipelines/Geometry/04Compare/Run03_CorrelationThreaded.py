@@ -1,36 +1,37 @@
 #@@@ PIPELINE PARMAMETERS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-import math
-from multiprocessing import Process,Queue
-import random
-import threading
-from idlelib import window
 
 import subprocess as sub
 
-from Class01Html import PlotThread
-
-
-
 ####  User inputs  #########################################################
-order_geo_list,make_html = False,True
+order_geo_list,make_html = True,True
 runs = [] #ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlir_cut
-runs.append(['Correlation_TAU','PW_High_02_Geometry.csv','N:CA:C',['PRO','ASP','LYS','TYR'],'','bfactor','',[],41,25])
-runs.append(['Correlation_TAU','PW_High_02_Geometry.csv','N:CA:C',[''],'PRO','bfactor','',[],41,25])
-runs.append(['Correlation_TAU','PW_High_GLY_02_Geometry.csv','N:CA:C',['GLY'],'','bfactor','',[],41,25])
-runs.append(['Correlation_PSI','PW_High_02_Geometry.csv','N:CA:C:N+1',['PRO','ASP','LYS','TYR'],'','bfactor','',[],41,25])
-runs.append(['Correlation_PSI','PW_High_02_Geometry.csv','N:CA:C:N+1',[''],'PRO','bfactor','',[],41,25])
-runs.append(['Correlation_PSI','PW_High_GLY_02_Geometry.csv','N:CA:C:N+1',['GLY'],'','bfactor','',[],41,25])
 
+#runs.append(['Correlation_OCAm1_','PW_High_GLY_02_Geometry.csv','O:CA-1',['GLY'],'','N:CA:C','',[],45,25])
+#runs.append(['Correlation_OCAm1_','PW_High_02_Geometry.csv','O:CA-1',[''],'PRO','N:CA:C','',[],45,25])
 
-#runs.append(['Correlation_TAUm1','PW_High_02_Geometry.csv','C-1:N:CA',['PRO'],'','bfactor','',[],41,25])
-#runs.append(['Correlation_TAUp1','PW_High_02_Geometry.csv','CA:C:N+1',['PRO'],'','bfactor','',[],41,25])
-#runs.append(['Correlation_PHI','PW_High_02_Geometry.csv','C-1:N:CA:C',['PRO'],'','bfactor','',[],41,25])
-#runs.append(['Correlation_TAUm1','PW_High_02_Geometry.csv','C-1:N:CA',[''],'PRO','bfactor','',[],41,25])
-#runs.append(['Correlation_TAUp1','PW_High_02_Geometry.csv','CA:C:N+1',[''],'PRO','bfactor','',[],41,25])
-#runs.append(['Correlation_PHI','PW_High_02_Geometry.csv','C-1:N:CA:C',[''],'PRO','bfactor','',[],41,25])
-#runs.append(['Correlation_TAUm1','PW_High_GLY_02_Geometry.csv','C-1:N:CA',['GLY'],'','bfactor','',[],41,25])
-#runs.append(['Correlation_TAUp1','PW_High_GLY_02_Geometry.csv','CA:C:N+1',['GLY'],'','bfactor','',[],41,25])
-#runs.append(['Correlation_PHI','PW_High_GLY_02_Geometry.csv','C-1:N:CA:C',['GLY'],'','bfactor','',[],41,25])
+#runs.append(['Correlation_NO_','PW_High_02_Geometry.csv','N:O',[''],'PRO','bfactor','',[],45,25])
+#runs.append(['Correlation_NO_','PW_High_02_Geometry.csv','N:O',['PRO','ASP','LYS','TYR'],'','bfactor','',[],45,25])
+#runs.append(['Correlation_NO_','PW_High_GLY_02_Geometry.csv','N:O',['GLY'],'','bfactor','',[],45,25])
+
+#runs.append(['Correlation_PHI_','PW_High_02_Geometry.csv','C-1:N:CA:C',[''],'PRO','bfactor','',[],45,25])
+#runs.append(['Correlation_PHI_','PW_High_02_Geometry.csv','C-1:N:CA:C',['PRO','ASP','LYS','TYR'],'','bfactor','',[],45,25])
+#runs.append(['Correlation_PHI_','PW_High_GLY_02_Geometry.csv','C-1:N:CA:C',['GLY'],'','O:CA-1','',[],45,25])
+
+runs.append(['Correlation_PSI_','PW_High_02_Geometry.csv','N:CA:C:N+1',[''],'PRO','bfactor','',[],45,25])
+runs.append(['Correlation_PSI_','PW_High_02_Geometry.csv','N:CA:C:N+1',['PRO','ASP','LYS','TYR'],'','bfactor','',[],45,25])
+runs.append(['Correlation_PSI_','PW_High_GLY_02_Geometry.csv','N:CA:C:N+1',['GLY'],'','bfactor','',[],45,25])
+
+#runs.append(['Correlation_TAU_','PW_High_02_Geometry.csv','N:CA:C',[''],'PRO','bfactor','',[],45,25])
+#runs.append(['Correlation_TAU_','PW_High_02_Geometry.csv','N:CA:C',['PRO','ASP','LYS','TYR'],'','bfactor','',[],45,25])
+#runs.append(['Correlation_TAU_','PW_High_GLY_02_Geometry.csv','N:CA:C',['GLY'],'','bfactor','',[],45,25])
+
+#runs.append(['Correlation_TAUm1_','PW_High_02_Geometry.csv','C-1:N:CA',[''],'PRO','bfactor','',[],45,25])
+#runs.append(['Correlation_TAUm1_','PW_High_02_Geometry.csv','C-1:N:CA',['PRO','ASP','LYS','TYR'],'','bfactor','',[],45,25])
+#runs.append(['Correlation_TAUm1_','PW_High_GLY_02_Geometry.csv','C-1:N:CA',['GLY'],'','bfactor','',[],45,25])
+
+#runs.append(['Correlation_TAUp1_','PW_High_02_Geometry.csv','CA:C:N+1',[''],'PRO','bfactor','',[],45,25])
+#runs.append(['Correlation_TAUp1_','PW_High_02_Geometry.csv','CA:C:N+1',['PRO','ASP','LYS','TYR'],'','bfactor','',[],45,25])
+#runs.append(['Correlation_TAUp1_','PW_High_GLY_02_Geometry.csv','CA:C:N+1',['GLY'],'','bfactor','',[],45,25])
 
 geos_to_abs = ['CA:C:O:N+1','CA-1:C-1:N:CA','CA:C:N+1:CA+1']
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -144,8 +145,9 @@ for ID,csv,geoA,aa_inc,aa_exc,hue,tag,over_geos,chunk,outlier_cut in runs:
                 commands2 += ' ' + str(end_count)
                 commands2 += ' ' + aa_inc
                 commands2 += ' ' + aa_exc
+                commands2 += ' ' + hue
                 print('"' + exe + '"' ,command,commands2)
-                pigP = sub.Popen([exe,command,ordered_geos_csv,csv_filename,html_filename,geoA,str(start_count),str(end_count),aa_inc,aa_exc], stdout=sub.PIPE)
+                pigP = sub.Popen([exe,command,ordered_geos_csv,csv_filename,html_filename,geoA,str(start_count),str(end_count),aa_inc,aa_exc,hue], stdout=sub.PIPE)
                 resultP = pigP.communicate(input=b"This is sample text.\n")
                 exe_resultP = str(resultP[0], 'utf-8')
                 pigP.kill()

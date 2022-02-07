@@ -1,5 +1,5 @@
 '''
-Rachel Alcraft: 29/01/2022
+Rachel Alcraft: 31/01/2022
 Script using LeucipPy Protein Geometry Library
 This script:
  1) Loads BioPython structures from pdb files in a directory
@@ -13,9 +13,6 @@ This script:
  There is a google colab which demonstrates it here
 
  https://colab.research.google.com/drive/1Ut5HXQQgE3sNuAMo7IVR3aqwUVOYDy12#scrollTo=2ubfgnaNP_Gs
-
-
-
 '''
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # INPUTS #
@@ -25,11 +22,11 @@ recreate_csv,modify_csv,recreate_html = False,False,True
 #directory of the pdb files
 dir = 'C:/Dev/Github/ProteinDataFiles/pdb_data_redo/'
 #full path, no path saves to current directory
-csv_final = "Clashes01.csv"
-html_filename = 'ClashesReport.html'
+csv_final = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/PW_High_GLY_02_Geometry.csv"
+html_filename = 'GeometryInspection.html'
 #the geometric measures for geometry calculations
 geos = ['N:CA','CA:C','C:O','C:N+1','N:(N,S,O)+2','O:(N,S,O)+2']
-title = 'Clashes Report' # used at the header of the html report
+title = 'Geometry Inspection' # used at the header of the html report
 # Help on geos:
 ### distances, angles or dihedrals/improper angles by e.g. N:CA N:CA:C or N:CA:C:N+1
 # Help on contact search:
@@ -64,21 +61,29 @@ if modify_csv:
 if recreate_html:
     print('### Creating html reports')
     rep_mak = hrm.HtmlReportMaker(title,html_filename, cols=3)
-    rep_mak.addLineComment('Histograms')
-    for geo in geos[:3]:
-        rep_mak.addPlot1d(data,'histogram',geo_x=geo,hue='pdb_code',title=geo) # this adds a histogram of the 1st 3 plots
-    for geo in geos[:3]:
-        rep_mak.addSeries(data[geo].describe(),geo,True)# this adds the summary statistics below each of the above histgrams
-    for geo in geos[3:]:
-        rep_mak.addPlot1d(data,'histogram',geo_x=geo,hue='pdb_code',title=geo)# this adds a histogram of the 1st 3 plots
-    for geo in geos[3:]:
-        rep_mak.addSeries(data[geo].describe(),geo,True)# this adds the summary statistics below each of the above histgrams
-
     # Some scatter plots are added to make better sense of the data, the colour scheme is to approcimate the AlphaFold probabilty
     rep_mak.addLineComment('Scatter Plots')
-    rep_mak.addPlot2d(data,'scatter','N:CA','CA:C',hue='probability',title='',palette='jet_r', crange=[50, 90])
-    rep_mak.addPlot2d(data, 'scatter', 'C:O', 'C:N+1', hue='probability', title='', palette='jet_r', crange=[50, 90])
-    rep_mak.addPlot2d(data, 'scatter', 'N:(N,S,O)+2', 'O:(N,S,O)+2', hue='probability', title='', palette='jet_r', crange=[50, 90])
+
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'C:O-1', hue='O:CA-1', title='', palette='jet_r',xrange=[-180,180],yrange=[2.7,5.5])
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'C:CA-1', hue='O:CA-1', title='', palette='jet_r',xrange=[-180,180],yrange=[2.7,5.5])
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'O-1:N+1', hue='O:CA-1', title='', palette='jet_r',xrange=[-180,180],yrange=[2.7,5.5])
+
+    rep_mak.addPlot2d(data,'scatter','C-1:N:CA:C','N:CA:C:N+1',hue='O:CA-1',title='',palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='O:O-1', title='', palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='O:CA-1', title='', palette='jet_r')
+
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='C:O-1', title='', palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='C:CA-1', title='', palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='C:CA+1', title='', palette='jet_r')
+
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='O-1:N+1', title='', palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='O-1:CA+1', title='', palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='O-1:C+1', title='', palette='jet_r')
+
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='C-1:N:CA', title='', palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='N:CA:C', title='', palette='jet_r')
+    rep_mak.addPlot2d(data, 'scatter', 'C-1:N:CA:C', 'N:CA:C:N+1', hue='CA:C:N+1', title='', palette='jet_r')
+
 
     rep_mak.printReport()
 
