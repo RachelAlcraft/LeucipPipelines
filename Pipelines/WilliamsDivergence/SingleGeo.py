@@ -5,8 +5,10 @@ Script using LeucipPy Protein Geometry Library
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # INPUTS #
 #control which steps you want to run
-reference_geo = 'CA-1:CA:CA+1'
-tag = 'CA3'
+import scipy
+
+reference_geo = 'C-1:N:CA:C'
+tag = 'PHI'
 recreate_csv,modify_csv,recreate_html = False,True,True
 dir = 'C:/Dev/Github/ProteinDataFiles/pdb_data_redo/'
 csv_final = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/PW_High_GLY_02_Geometry.csv"
@@ -58,8 +60,9 @@ if recreate_html:
         geoA = rem_df['geoA'].values[i]
         geoB = rem_df['geoB'].values[i]
         stat = rem_df['stat'].values[i]
+        tau, p = scipy.stats.kendalltau(data[geoA], data[geoB])
         print('...', geoA,geoB,stat)
-        title = geoA + '|' + geoB + ' bins =' + str(wcc.bins) + ' coeff=' + str(round(stat, 3))
+        title = geoA + '|' + geoB + ' bins =' + str(wcc.bins) + '\ncoeff=' + str(round(stat, 3))+ ' rank=' + str(round(tau, 3)) + ' p-value=' + str(round(p,3))
         rep_mak.addLineComment(title)
         rep_mak.addPlot2d(data, 'scatter', title=title, geo_x=geoA, geo_y=geoB, hue='N:CA:C',palette='Spectral')
         print('Scatter', geoA, geoB)
@@ -75,7 +78,8 @@ if recreate_html:
         geoB = rem_df['geoB'].values[i]
         stat = rem_df['stat'].values[i]
         print('...', geoA,geoB,stat)
-        title = geoA + '|' + geoB + ' bins =' + str(wcc.bins) + ' coeff=' + str(round(stat, 3))
+        tau, p = scipy.stats.kendalltau(data[geoA], data[geoB])
+        title = geoA + '|' + geoB + ' bins =' + str(wcc.bins) + '\ncoeff=' + str(round(stat, 3))+ ' rank=' + str(round(tau, 3)) + ' p-value=' + str(round(p,3))
         rep_mak.addLineComment(title)
         rep_mak.addPlot2d(data, 'scatter', title=title, geo_x=geoA, geo_y=geoB, hue=geoA)
 

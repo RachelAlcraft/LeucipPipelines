@@ -3,6 +3,20 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\Pipelines\0ConfigData\PdbFilesCrossLinkSGNZ.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\0ConfigData\PdbFilesCrossLinkSGNZ_good.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\Pipelines\Demonstrations\Clashes01.csv">
           <value>
             <Attribute>
@@ -10,17 +24,80 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\Pipelines\WilliamsCoefficient\Csv\Correlations.csv">
+        <entry key="\Pipelines\ElectronDensity\01Images\Csv\CL_THR_02_Geometry.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\Pipelines\WilliamsCoefficient\Csv\Summary.csv">
+        <entry key="\Pipelines\ElectronDensity\01Images\Csv\CL_THR_OG1_MEDIUM_02_Geometry.csv">
           <value>
             <Attribute>
-              <option name="separator" value=":" />
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\ElectronDensity\01Images\Csv\SG_NZ_MEDIUM_02_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\ElectronDensity\01Images\Csv\SG_NZ_MEDIUM_03_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\ElectronDensity\01Images\Csv\SG_TRIPLE_MEDIUM_02_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Geometry\01Geometry6\Csv\CYS_GEO6_MEDIUM_02_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Geometry\01Geometry6\Csv\CYS_GEO6_MEDIUM_03_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Geometry\01Geometry6\Csv\NZ_GEO6_MEDIUM_03_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Geometry\01Geometry6\Csv\SD_GEO6_HIGH_02_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Geometry\01Geometry6\Csv\SD_GEO6_HIGH_03_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Utilities\01Download\Csv\PdbFilesCrossLinkSGNZ_good.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
