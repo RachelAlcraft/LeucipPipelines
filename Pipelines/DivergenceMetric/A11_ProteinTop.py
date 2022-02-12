@@ -4,7 +4,7 @@ Rachel Alcraft: 09/02/2022
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # INPUTS #
 #control which steps you want to run
-modify_csv,recreate_divergence,recreate_html = True,False,True
+modify_csv,recreate_divergence,recreate_html = True,True,True
 csv_final = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/PW_High_GLY_02_Geometry.csv"
 html_filename = 'Html/1a_ProteinTop.html'
 title = 'Williams Divergence from Trivial: Most and Least Correlated'
@@ -14,7 +14,7 @@ iters = 1000
 density = 1
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 import sys
-sys.path.append('C:/Dev/Github/LeucipPipelines/Pipelines/1Library')
+sys.path.append('../1Library')
 import Helpers as help
 
 from LeucipPy import HtmlReportMaker as hrm
@@ -51,7 +51,7 @@ if recreate_divergence:
     complete.to_csv('Csv/11_Correlations.csv',index=False)
     print(complete)
 
-complete = pd.read_csv('Csv/11_Correlations.csv')
+complete = pd.read_csv('../WilliamsDivergence/Csv/11_Correlations.csv')
 if recreate_html:
     used_geos = []
     print('### Creating html reports')

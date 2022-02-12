@@ -14,7 +14,7 @@ for style,sample_size in runs1:
     if run_out_proc:
         print('Starting subprocess',style,sample_size)
         exe = sys.executable
-        command = 'C:/Dev/Github/LeucipPipelines/Pipelines/WilliamsDivergence/A01_RandomBaseline_OutProc.py'
+        command = 'C:/Dev/Github/LeucipPipelines/Pipelines/DivergenceMetric/A01_RandomBaseline_OutProc.py'
         commands2 = str(style)
         commands2 += ' ' + str(sample_size)
         print('"' + exe + '"' ,command,commands2)

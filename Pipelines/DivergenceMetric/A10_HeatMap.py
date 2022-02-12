@@ -32,7 +32,7 @@ if recreate_html:
     print('### Creating html reports')
     rep_mak = hrm.HtmlReportMaker(title,html_filename, cols=2)
     print('Create Williams Coefficient Maker')
-    wcc = wcm.WilliamsDivergenceMaker(data,geos,bins=20,log=1,norm=False,pval_iters=0)
+    wcc = wcm.WilliamsDivergenceMaker(data,geos,density=1,log=1,norm=False,pval_iters=0)
 
     complete = wcc.getCoefficientsDataFrame()
     complete.to_csv('Csv/10_Correlations.csv')

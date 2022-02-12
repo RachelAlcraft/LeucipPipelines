@@ -33,8 +33,8 @@ def log(logfile, msg):
 
 def run():
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    html_file = "Html/01b_CompareBaselines.html"
-    log_file = "Log/01b_CompareBaselines.log"
+    html_file = "../WilliamsDivergence/Html/01b_CompareBaselines.html"
+    log_file = "../WilliamsDivergence/Log/01b_CompareBaselines.log"
     openLog(log_file, 'Compare baselines')
     csv_files = []
     csv_files.append("Csv/01a_Baseline_three500_0.5.csv")

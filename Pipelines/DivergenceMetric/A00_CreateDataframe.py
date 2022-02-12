@@ -18,8 +18,8 @@ aa_NO_gly = ['ALA','CYS','ASP','GLU','PHE','HIS','ILE','LYS','LEU','MET','ASN','
 import pandas as pd
 import sys
 from datetime import datetime
-sys.path.append('C:/Dev/Github/LeucipPipelines/Pipelines/1Library')
-import Helpers as hlp
+sys.path.append('../Pipelines/1Library')
+#import Helpers as hlp
 from LeucipPy import BioPythonMaker as bpm
 from LeucipPy import DataFrameMaker as dfm
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -28,7 +28,7 @@ def runMakeCsv(ID,PdbFile,PdbDir,AllGeos,aa_filter=[]):
     pdb_df = pd.read_csv(PdbFile)
     pdb_df = pdb_df.sort_values(by=['PDB'], ascending=True)
     pdbs = pdb_df['PDB'].values
-    pdbs = pdbs[:10]
+    #pdbs = pdbs[:10]
     ### 2) Loop through and create bio python objects
     print('### Load structures from BioPython #############')
     strucs = bpm.loadPdbStructures(pdbs, PdbDir, extension='ent', prefix='pdb', log=2)
@@ -75,4 +75,4 @@ def run(run_for):
     hlp.printTime(start,end)
 
 ###########################################################
-run([1])
+run([4])
