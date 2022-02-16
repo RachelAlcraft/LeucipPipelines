@@ -33,10 +33,11 @@ def log(logfile, msg):
 
 def run():
     normed_corr = False
-    iters = 0
-    density = 1
+    iters = 500
+    density = 5
     randOrline = 'three'#'line' #rand or line or covar
     varis = [0,0.1,0.2,0.5,0.75,1,2,10]#,50,500]
+    resample = True
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     html_file = "Html/01ca_Baseline_"+randOrline+str(iters)+'_'+str(density)+".html"
     csv_file = "Csv/01c_Baseline_"+randOrline+str(iters)+'_'+str(density)+".csv"
@@ -60,13 +61,14 @@ def run():
             dic_fake_all[tag+'A'] = []
             dic_fake_all[tag+'B'] = []
             for i in range(0,sample):
-                dic_fake_all[tag+'A'].append(i + random.randint(0, int(sample*vi)))
-                dic_fake_all[tag+'B'].append(i + random.randint(0, int(sample*vi)))
+                dic_fake_all[tag+'A'].append(i + np.random.normal(0, int(sample*vi)))
+                dic_fake_all[tag + 'B'].append(i + np.random.normal(0, int(sample * vi)))
+                #dic_fake_all[tag+'B'].append(i + random.randint(0, int(sample*vi)))
 
         #print(dic_fake_all)
         df_sample = pd.DataFrame.from_dict(dic_fake_all)
         print(df_sample.columns)
-        div_per_sample[sample] =wcm.WilliamsDivergenceMaker(df_sample,fake_geos,density=density,log=1,norm=normed_corr,pval_iters=iters,delay_load=True)
+        div_per_sample[sample] =wcm.WilliamsDivergenceMaker(df_sample,fake_geos,density=density,log=1,norm=normed_corr,pval_iters=iters,delay_load=True,p_resample=resample)
         print('######',sample)
         print(div_per_sample,sample)
         print('###############')
@@ -123,9 +125,8 @@ def run():
 
     log(log_file, 'Make distribution plots')
     rep.addLineComment('Plots of distributions')
-    rep.changeColNumber(6)
 
-
+    rep.changeColNumber(7)
     for sample,vi, geoA, geoB in geo_pairs:
         #rep.addLineComment(geoA + geoB, + 'Samples = ')
         if sample == 1000:
@@ -133,12 +134,15 @@ def run():
             dm = div_per_sample[sample]
             cm_data = dm.data
             df_rand = dm.randomiseData(cm_data,[geoA, geoB])
+            df_samp = dm.resampleData(cm_data,[geoA,geoB])
+            print(df_samp)
             div = dm.getCorrelation([geoA, geoB])
             stat,pvalue,A,D,B = div.stat,div.p_value,div.histAB,div.diffAB,div.convAB
             mean,sd,hist = div.p_mean,div.p_std,div.p_hist
             maxV = max(np.max(A),np.max(B))
             rep.addPlot2d(cm_data, 'scatter', title=str(round(stat,3)) + ' orig vari=' + str(vi), geo_x=geoA, geo_y=geoB, hue=geoA)
             rep.addPlot2d(df_rand, 'scatter',title='rand, size=' + str(sample), geo_x=geoA, geo_y=geoB, hue=geoA)
+            rep.addPlot2d(df_samp, 'scatter', title='resampled, size=' + str(sample), geo_x=geoA, geo_y=geoB, hue=geoA)
             if len(hist['divergence'])>0:
                 crit_val = round(dm.getCriticalValue(geoA,geoB,0.95),3)
                 rep.addPlot1d(hist,'histogram',geo_x='divergence',title='mean=' + str(round(mean,3)) + ' sd=' + str(round(sd,3)) + ' crit5%=' + str(crit_val))

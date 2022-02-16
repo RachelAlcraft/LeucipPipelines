@@ -24,6 +24,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\Pipelines\DivergenceMetric\Csv\PW_High_GLY_01_Geometry.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="|" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\DivergenceMetric\Csv\dssp_trainingset.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\Pipelines\ElectronDensity\01Images\Csv\CL_THR_02_Geometry.csv">
           <value>
             <Attribute>

@@ -5,9 +5,9 @@ run_out_proc = False
 
 runs2 = []
 runs2.append([0,0.5,1])
-#runs2.append([0,1,1])
-#runs2.append([0,5,1])
-#runs2.append([0,10,1])
+runs2.append([0,1,1])
+runs2.append([0,5,1])
+runs2.append([0,10,1])
 
 
 for iters,density,vari in runs2:

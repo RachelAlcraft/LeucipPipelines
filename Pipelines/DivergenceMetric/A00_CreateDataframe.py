@@ -8,7 +8,8 @@ PdbDirHigh = "C:/Dev/Github/ProteinDataFiles/pdb_data/"
 PdbDirRedo = "C:/Dev/Github/ProteinDataFiles/pdb_data_redo/"
 PWAtomsGLY = ['N','CA','C','O','N-1','CA-1','C-1','O-1','N+1','CA+1','C+1','O+1']
 PWAtoms = ['CB','CB-1','CB+1']
-OtherGLY = ['O:(N,O,S@2)','O:(N,O,S@3)','O:(N,O,S@4)','O:(N,O,S@5)','O:(N,O,S@6)','O:(N,O,S@7)','O:{N}+2','N:{O}+2','C-1:N:CA','N:CA:C','CA:C:N+1','CA:C:O','O:C:N+1','N:CA:C:N+1','CA-1:CA:CA+1','CA:C:O:N+1','C-1:N:CA:C','CA-1:C-1:N:CA','CA:C:N+1:CA+1']
+OtherDssp = ['N:O+2','N:O+3','N:O+4','O:N+2','O:N+3','O:N+4','O:{N}+2','N:{O}+2']
+OtherGLY = ['C-1:N:CA','N:CA:C','CA:C:N+1','CA:C:O','O:C:N+1','N:CA:C:N+1','CA-1:CA:CA+1','CA:C:O:N+1','C-1:N:CA:C','CA-1:C-1:N:CA','CA:C:N+1:CA+1']
 Other = ['N:CA:CB','CB:CA:C','C-1:N:CA:CB','N:CA:CB:C','CB:CA:C:O','CB:CA:C:N+1']
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 PdbDirectory = "C:/Dev/Github/ProteinDataFiles/pdb_data/"
@@ -18,8 +19,8 @@ aa_NO_gly = ['ALA','CYS','ASP','GLU','PHE','HIS','ILE','LYS','LEU','MET','ASN','
 import pandas as pd
 import sys
 from datetime import datetime
-sys.path.append('../Pipelines/1Library')
-#import Helpers as hlp
+sys.path.append('../1Library')
+import Helpers as hlp
 from LeucipPy import BioPythonMaker as bpm
 from LeucipPy import DataFrameMaker as dfm
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -60,8 +61,8 @@ def runMakeGeosPairwise(atoms_list):
 ##################################################################################
 def run(run_for):
     start = datetime.now()
-    geos = runMakeGeosPairwise(PWAtomsGLY + PWAtoms) + OtherGLY + Other
-    geosGLY = runMakeGeosPairwise(PWAtomsGLY) + OtherGLY
+    geos = runMakeGeosPairwise(PWAtomsGLY + PWAtoms) + OtherGLY + OtherDssp + Other
+    geosGLY = runMakeGeosPairwise(PWAtomsGLY) + OtherGLY + OtherDssp
     if 1 in run_for:
         runMakeCsv(ID_high,PdbFile,PdbDirHigh,geos,aa_filter=aa_NO_gly)
     if 2 in run_for:
@@ -75,4 +76,4 @@ def run(run_for):
     hlp.printTime(start,end)
 
 ###########################################################
-run([4])
+run([1,2,3,4])
