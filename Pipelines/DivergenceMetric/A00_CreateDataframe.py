@@ -22,7 +22,7 @@ from datetime import datetime
 sys.path.append('../1Library')
 import Helpers as hlp
 from LeucipPy import BioPythonMaker as bpm
-from LeucipPy import DataFrameMaker as dfm
+from LeucipPy import GeometryMaker as dfm
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 def runMakeCsv(ID,PdbFile,PdbDir,AllGeos,aa_filter=[]):
     print('LeucipPipeline: - Creating data -----------------------------------------------------------')
@@ -35,7 +35,7 @@ def runMakeCsv(ID,PdbFile,PdbDir,AllGeos,aa_filter=[]):
     strucs = bpm.loadPdbStructures(pdbs, PdbDir, extension='ent', prefix='pdb', log=2)
 
     print('### Creating dataframe for correlations #############')
-    geo_mak = dfm.DataFrameMaker(strucs, log=1)
+    geo_mak = dfm.GeometryMaker(strucs, log=1)
     data = geo_mak.calculateGeometry(AllGeos, log=1)
 
     print('### Save dataframe ###############################')
@@ -45,6 +45,48 @@ def runMakeCsv(ID,PdbFile,PdbDir,AllGeos,aa_filter=[]):
 
     print('Save to', "Csv/" + ID + "_01_Geometry.csv")
     data.to_csv("Csv/" + ID + "_01_Geometry.csv", index=False)
+
+
+def runMakeCsv_Synthetic(ID,AllGeos,aa_filter=[]):
+    import Ext_Geometry as ext_geo
+    import Ext_PeptideBuilder as ext_pep
+    import A0Class_AtomCollection as rot
+
+    print('LeucipPipeline: - Creating synthetic data -----------------------------------------------------------')
+    omega_rules = rot.RotationRules('0.5{-180,-150}:0.5{150,180}')
+    phi_rules = rot.RotationRules('0.5{-180,-50}:0.5{50,180}')
+    psi_rules = rot.RotationRules('4{-180,-120}:1{-120,-50}:4{-50,50}:1{50,120}:4{120,180}')
+    strucs = []
+    for i in range(0, 1000):
+        omega = int(omega_rules.getRandomRotation())
+        phi = int(phi_rules.getRandomRotation())
+        psi = int(psi_rules.getRandomRotation())
+        #print(omega, phi, psi)
+        geo = ext_geo.geometry('G')
+        geo.omega = omega
+        geo.phi = phi
+        geo.psi_im1 = psi
+        structure = ext_pep.initialize_res(geo)
+        structure.header = {}
+        structure.header['resolution'] = 1
+        structure.id = 'X' + str(i)
+
+        for i in range(0, 10):
+            structure = ext_pep.add_residue(structure, geo)
+        strucs.append(structure)
+
+    print('### Creating dataframe for correlations #############')
+    geo_mak = dfm.GeometryMaker(strucs, log=1)
+    data = geo_mak.calculateGeometry(AllGeos, log=1)
+
+    print('### Save dataframe ###############################')
+    #if len(aa_filter) > 0:
+    #    print('filter on',aa_filter)
+    #    data = data[data['aa'].isin(aa_filter)]
+
+    print('Save to', "Csv/PW_" + ID + "_01_Geometry.csv")
+    data.to_csv("Csv/PW_" + ID + "_01_Geometry.csv", index=False)
+
 
 
 #***************************************************************************************************************
@@ -71,9 +113,11 @@ def run(run_for):
         runMakeCsv(ID_redo, PdbFile, PdbDirRedo, geos,aa_filter=aa_NO_gly)
     if 4 in run_for:
         runMakeCsv(ID_redo + '_GLY', PdbFile, PdbDirRedo, geosGLY,aa_filter=['GLY'])
+    if 5 in run_for:
+        runMakeCsv_Synthetic('SYN_GLY', geosGLY, aa_filter=['G'])
 
     end = datetime.now()
     hlp.printTime(start,end)
 
 ###########################################################
-run([1,2,3,4])
+run([5])

@@ -64,11 +64,13 @@ class RotationRules:
 
 
 class Atom:
-    def __init__(self, branch,position,resNo,aminoAcid,atom,coordX,coordY,coordZ,rotationSet):
+    def __init__(self, branch,position,resNo,aminoAcid,atom,coordX,coordY,coordZ,rotationSet,mainBranch,link_to_last):
         self.branch,self.position = branch,position
         self.resNo,self.aminoAcid,self.atom, = resNo,aminoAcid,atom
         self.coordX, self.coordY, self.coordZ = coordX,coordY,coordZ
         self.rotation = RotationRules(rotationSet)
+        self.mainBranch = mainBranch
+        self.last_atom = link_to_last
 
 class AtomCollection:
     def __init__(self,atoms_data,log=0):
@@ -81,6 +83,7 @@ class AtomCollection:
         # when we init we turn this into sets and a list of atoms, tuples are by ref so all the sets should be by ref
         rids, aas, xs, ys, zs, atoms = [], [], [], [], [], []
         self.branches_sets = {}
+        last_atm = None
         for i in range(len(self.atoms_data.index)):
             branches = self.atoms_data['branch'].values[i].split('.')
             positions = self.atoms_data['position'].values[i].split('.')
@@ -91,18 +94,26 @@ class AtomCollection:
             coordY = self.atoms_data['coordY'].values[i]
             coordZ = self.atoms_data['coordZ'].values[i]
             rotationSet = self.atoms_data['rotationSet'].values[i]
-            atm = Atom(branches[0],positions[0],resNo,aminoAcid,atom,coordX,coordY,coordZ,rotationSet)
+            mainBranch = len(branches)==1
+            atm = Atom(branches[0],positions[0],resNo,aminoAcid,atom,coordX,coordY,coordZ,rotationSet,mainBranch,last_atm)
+            if mainBranch:
+                last_atm = atm
             for b in range(0,len(branches)):
                 if branches[b] not in self.branches_sets:
                     self.branches_sets[branches[b]] = []
                 self.branches_sets[branches[b]].append(atm)
 
-    def shiftToPole(self, coords1, coords2):
+    def shiftToPole(self, coordsPole, coordsCentre):
         '''This finds the transformatinios needed to:
+        a) Tranlate coords 2 to origin
+        b) Rotate coords1 to XZ plane
+        c) Rotate coords1 to z axis pole
+
         a) Translate coords1 to origin
         b) Rotate coords2 to XZ plane
         c) Rotate coords2 to z axis pole
         d) Tranlate coords 2 to origin
+
         :param coords1: the cords of the first atom
         :param coords2: the coords of the atom that will be rotated
         :return: a tuple of these transforamtions
@@ -110,30 +121,44 @@ class AtomCollection:
         #print('This shifts the coords1 to origin, orients coords2 onto the x axis, then slifers coords2 down')
         transformations = []
         if self.log > 1:
-            print('LeucipPy(2) Create Pole Shift for',coords1,coords2)
+            print('LeucipPy(2) Create Pole Shift for',coordsPole,coordsCentre)
         #a) Tranlate to origin, is just the reverse of the coords
-        a_tranlate = [-1*coords1[0],-1*coords1[1],-1*coords1[2]]
-        transformations.append(a_tranlate)
-        coordsNew = [coords2[0]+a_tranlate[0],coords2[1]+a_tranlate[1],coords2[2]+a_tranlate[2]]
+        #a_tranlate = [-1*coords1[0],-1*coords1[1],-1*coords1[2]]
+        a_translate = [-1 * coordsCentre[0], -1 * coordsCentre[1], -1 * coordsCentre[2]]
+        transformations.append(a_translate)
+        coordsNew = [coordsPole[0]+a_translate[0],coordsPole[1]+a_translate[1],coordsPole[2]+a_translate[2]]
 
         #b) Rotate to y=0 on xy plane
-        b_theta_radians = self.__getRotationAngle(coordsNew[0],coordsNew[1]) # we are not passing in z, it will rotate on the xy-plane to y=0
+        b_theta_radians = self.__getRotationAngle(coordsNew[0],coordsNew[1])
         b_theta_degrees = self.__radiansToDegrees(b_theta_radians)
         transformations.append([b_theta_degrees])
         coordsNew[0],coordsNew[1] = self.rotate(coordsNew[0],coordsNew[1],b_theta_degrees)
 
         # c) Rotate to z=0 on XZ plane
-        c_theta_radians = self.__getRotationAngle(coordsNew[2], coordsNew[0])  # we are not passing in y, it will rotate on the xz-plane to x=0
+        c_theta_radians = self.__getRotationAngle(coordsNew[0], coordsNew[2])
         c_theta_degrees = self.__radiansToDegrees(c_theta_radians)
         transformations.append([c_theta_degrees])
-        coordsNew[2], coordsNew[0] = self.rotate(coordsNew[2], coordsNew[0], c_theta_degrees)
+        coordsNew[0], coordsNew[2] = self.rotate(coordsNew[0], coordsNew[2], c_theta_degrees)
 
+        if self.log > 1:
+            print('LeucipPy(2) Shifted pole=', round(coordsNew[0],4),round(coordsNew[1],4),round(coordsNew[2],4))
+
+        '''
         # d) Tranlate to origin, is just the reverse of the coords
         d_tranlate = [-1 * coordsNew[0], -1 * coordsNew[1], -1 * coordsNew[2]]
-        transformations.append(d_tranlate)
+        transformations.append(d_tranlate)        
+        '''
         if self.log > 1:
-            print('LeucipPy(2) Pole Shift=',transformations)
+            print('LeucipPy(2) Pole Shift=', transformations)
 
+        # TEST it worked
+        if self.log > 1:
+            print('LeucipPy(2) TEST IT WORKED #####')
+            test1 = self.applyTransformations(transformations,round(coordsPole[0],4),round(coordsPole[1],4),round(coordsPole[2],4))
+            print('LeucipPy(2) CoordsPole=',round(test1[0],4),round(test1[1],4),round(test1[2],4))
+            test2 = self.applyTransformations(transformations,round(coordsCentre[0],4),round(coordsCentre[1],4),round(coordsCentre[2],4))
+            print('LeucipPy(2) CoordsCentre=',round(test2[0],4),round(test2[1],4),round(test2[2],4))
+            print('##### LeucipPy(2) TESTED #####')
         return transformations
 
     def applyTransformations(self,transforms,x,y,z):
@@ -151,14 +176,14 @@ class AtomCollection:
             print('LeucipPy(2) B.rotation',b_translate,round(x,4),round(y,4),round(z,4))
 
         c_translate = transforms[2][0]
-        z, x = self.rotate(z, x, c_translate)
+        x,z = self.rotate(x, z, c_translate)
         if self.log > 1:
             print('LeucipPy(2) C.rotation',c_translate,round(x,4),round(y,4),round(z,4))
 
-        d_translate = transforms[3]
+        '''d_translate = transforms[3]
         x, y, z = x + d_translate[0], y + d_translate[1], z + d_translate[2]
         if self.log > 1:
-            print('LeucipPy(2) D.translation',d_translate,round(x,4),round(y,4),round(z,4))
+            print('LeucipPy(2) D.translation',d_translate,round(x,4),round(y,4),round(z,4))'''
 
         return x,y,z
 
@@ -166,13 +191,13 @@ class AtomCollection:
         if self.log > 1:
             print('LeucipPy(2) Reverse coords=',round(x,4),round(y,4),round(z,4))
 
-        d_translate = transforms[3]
+        '''d_translate = transforms[3]
         x, y, z = x - d_translate[0], y - d_translate[1], z - d_translate[2]
         if self.log > 1:
-            print('LeucipPy(2) D.rev translation', d_translate,round(x,4),round(y,4),round(z,4))
+            print('LeucipPy(2) D.rev translation', d_translate,round(x,4),round(y,4),round(z,4))'''
 
         c_translate = transforms[2][0]
-        z, x = self.rotate(z, x, 360-c_translate)
+        x,z = self.rotate(x,z, 360-c_translate)
         if self.log > 1:
             print('LeucipPy(2) C.rev rotation',c_translate,round(x,4),round(y,4),round(z,4))
 
@@ -223,8 +248,9 @@ class AtomCollection:
             #for branch, atom_list in self.branches_sets.items():
                 if True:#branch == '1':
                     for j in range(1,len(self.branches_sets[branch])):
-                        atm_prev = self.branches_sets[branch][j-1]
+                        #atm_prev = self.branches_sets[branch][j-1]
                         atm_this = self.branches_sets[branch][j]
+                        atm_prev = atm_this.last_atom
                         pole = atm_prev.atom + '-' + atm_this.atom
                         lx,ly,lz = atm_prev.coordX,atm_prev.coordY,atm_prev.coordZ
                         tx,ty,tz = atm_this.coordX,atm_this.coordY,atm_this.coordZ
@@ -238,17 +264,20 @@ class AtomCollection:
                             for k in range(j+1,len(self.branches_sets[branch])):
                                 atm = self.branches_sets[branch][k]
                                 nx,ny,nz = self.applyTransformations(trans,atm.coordX,atm.coordY,atm.coordZ)
-
                                 if self.log > 1:
-                                    print('LeucipPy(2) Rotate degrees=', round(degrees, 4), 'from=', round(nx, 4), round(ny, 4))
-                                nx,ny = self.rotate(nx,ny,degrees)
+                                    print('LeucipPy(2) Rotate degrees=', round(degrees, 4), 'from=', round(nx, 4), round(ny, 4), round(nz, 4))
+                                ny,nz = self.rotate(ny,nz,degrees)
                                 if self.log > 1:
-                                    print('LeucipPy(2) Rotate degrees=', round(degrees, 4), 'to=', round(nx, 4), round(ny, 4))
+                                    print('LeucipPy(2) Rotate degrees=', round(degrees, 4), 'to=', round(nx, 4),round(ny, 4),round(nz, 4))
                                 nx, ny, nz = self.reverseTransformations(trans,nx,ny,nz)
                                 atm.coordX = nx
                                 atm.coordY = ny
                                 atm.coordZ = nz
                                 self.branches_sets[branch][k] = atm
+
+
+
+
             # then all the adding, but we only add branch 1 as all atoms start on branch 1
             atoms_list = self.branches_sets['1']
             for atm in atoms_list:
@@ -279,7 +308,7 @@ class AtomCollection:
     #######################################################################################################
     ### This code is copied from my C++ implentation in LeucipPus
     def __getRotationAngle(self, x, y):
-        radians = 0.0
+        theta_radians = 0.0
         qStart = self.__getQuadrant(x, y)
         mag = math.sqrt(pow(x, 2) + pow(y, 2))
         newXY = 0,0
@@ -287,13 +316,16 @@ class AtomCollection:
         if (mag > 0.0001):
             newXY = x,y
             axisXY= mag,0
-            theta = calc.getAngle(newXY[0],newXY[1],0,0,0,0,axisXY[0],axisXY[1],0)
+            theta_degrees = calc.getAngle(newXY[0],newXY[1],0,0,0,0,axisXY[0],axisXY[1],0)
+            #theta_degrees = calc.getAngle(0, 0, 0,newXY[0], newXY[1], 0, axisXY[0], axisXY[1], 0)
+            #theta_degrees = calc.getAngle(newXY[0], newXY[1], 0, axisXY[0], axisXY[1], 0,0, 0, 0)
+            theta_radians = self.__degreesToRadians(theta_degrees)
             # We want to go claockwise to the  positive  x - axis and this is just the absolute difference, so:
             if (qStart == 4 or qStart == 3):
-                radians = 2 * M_PI - theta
-            if (theta < 0):
-                radians = 2 * M_PI + theta
-        return radians
+                radians = 2 * M_PI - theta_radians
+            if (theta_radians < 0):
+                theta_radians = 2 * M_PI + theta_radians
+        return theta_radians
 
     def __getQuadrant(self,x,y):
         '''
