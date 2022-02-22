@@ -1,12 +1,8 @@
 
 
 import math
-import random
 import sys
 
-import scipy
-from LeucipPy import BioPythonMaker as bpm
-from LeucipPy import DataFrameMaker as dfm
 from LeucipPy import HtmlReportMaker as hrm
 from LeucipPy import WilliamsDivergenceMaker as wcm
 import numpy as np
@@ -31,17 +27,18 @@ def log(logfile, msg):
     f.close()
     print(msg)
 
-def run():
-    normed_corr = False
-    iters = 500
-    density = 5
+def run(str_density,str_bins,str_iters):
+    normed_corr = True
+    density = float(str_density)
+    iters = int(str_iters)
+    bins = int(str_bins)
     randOrline = 'three'#'line' #rand or line or covar
-    varis = [0,0.1,0.2,0.5,0.75,1,2,10]#,50,500]
+    varis = [0,0.1,0.5,1,10]#,50,500]
     resample = True
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    html_file = "Html/01ca_Baseline_"+randOrline+str(iters)+'_'+str(density)+".html"
-    csv_file = "Csv/01c_Baseline_"+randOrline+str(iters)+'_'+str(density)+".csv"
-    log_file = "Log/01c_Baseline_" + randOrline + str(iters)+'_'+str(density)+".log"
+    html_file = "Html/A01_Baseline_"+randOrline+str(iters)+'_'+str(density)+".html"
+    csv_file = "Csv/A01_Baseline_"+randOrline+str(iters)+'_'+str(density)+".csv"
+    log_file = "Log/A01_Baseline_" + randOrline + str(iters)+'_'+str(density)+".log"
     rep = hrm.HtmlReportMaker("Williams Divergence From Trivial: Variance Comparison, Density=" + str(density),html_file,cols=2)
     openLog(log_file,randOrline + str(iters))
     samples = [200,500,750,1000,1500,2000,5000,10000]
@@ -61,13 +58,18 @@ def run():
             dic_fake_all[tag+'A'] = []
             dic_fake_all[tag+'B'] = []
             for i in range(0,sample):
-                dic_fake_all[tag+'A'].append(i + np.random.normal(0, int(sample*vi)))
-                dic_fake_all[tag + 'B'].append(i + np.random.normal(0, int(sample * vi)))
-                #dic_fake_all[tag+'B'].append(i + random.randint(0, int(sample*vi)))
+                l = i % 20
+                count = 10  # samplesize
+                dic_fake_all[tag+'A'].append(np.random.normal(l, int(count * vi)))
+                dic_fake_all[tag+'B'].append(np.random.normal(l, int(count * vi)))
+                #dic_fake_all[tag+'A'].append(np.random.normal(i, int(sample*vi)))
+                #dic_fake_all[tag + 'B'].append(np.random.normal(i, int(sample * vi)))
 
         #print(dic_fake_all)
         df_sample = pd.DataFrame.from_dict(dic_fake_all)
         print(df_sample.columns)
+        if str_density == '0':
+            density = sample/(bins*bins)
         div_per_sample[sample] =wcm.WilliamsDivergenceMaker(df_sample,fake_geos,density=density,log=1,norm=normed_corr,pval_iters=iters,delay_load=True,p_resample=resample)
         print('######',sample)
         print(div_per_sample,sample)
@@ -156,6 +158,5 @@ def run():
     rep.printReport()
 
 
-##########################################
-run()
-
+if __name__ == '__main__':
+    globals()['run'](sys.argv[1],sys.argv[2],sys.argv[3])

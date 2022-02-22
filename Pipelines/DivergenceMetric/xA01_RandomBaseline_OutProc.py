@@ -4,9 +4,6 @@ import math
 import random
 import sys
 
-import scipy
-from LeucipPy import BioPythonMaker as bpm
-from LeucipPy import DataFrameMaker as dfm
 from LeucipPy import HtmlReportMaker as hrm
 from LeucipPy import WilliamsDivergenceMaker as wcm
 import numpy as np
@@ -36,17 +33,16 @@ def randomBaseline(randOrline,str_iters):
     iters = int(str_iters)
     #randOrline = 'line' #rand or line or covar
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    html_file = "Html/01_Baseline_"+randOrline+str_iters+".html"
-    csv_file = "Csv/01_Baseline_"+randOrline+str_iters+".csv"
-    log_file = "Log/01_Baseline_" + randOrline + str_iters + ".log"
+    html_file = "Html/X01_Baseline_"+randOrline+str_iters+".html"
+    csv_file = "Csv/X01_Baseline_"+randOrline+str_iters+".csv"
+    log_file = "Log/X01_Baseline_" + randOrline + str_iters + ".log"
     rep = hrm.HtmlReportMaker("Williams Divergence From Trivial: Baseline",html_file,cols=2)
     openLog(log_file,randOrline + str(iters))
 
     fake_geos =['RandA','RandB']
-    #bins = [5,10,20,25,50,40,60,80,100,150,200,500,1000] #the last ones happen to be the ones we use for the plot
-    densities = [0.5,1,5,10]  # the last ones happen to be the ones we use for the plot
-    samples = [200,500,1000,2000,5000,10000]#,20000,50000]
-    #bins = [5,10,20,50]
+    #bins = [10,20,25,50,40,60,80,100,150,200,500,1000] #the last ones happen to be the ones we use for the plot
+    densities = [1]  # the last ones happen to be the ones we use for the plot
+    samples = [100]#,500,1000,2000,5000,10000]#,20000,50000]
     #samples = [200,20000]
     log(log_file,'Create samples')
     dic_sample_bin = {}
@@ -55,15 +51,15 @@ def randomBaseline(randOrline,str_iters):
         dic_fake_1 = {'RandA': [], 'RandB': []}
         #dic_sample = {}
         for i in range(0,sample):
-            if randOrline == 'rand':
-                dic_fake_1['RandA'].append(random.randint(0,sample))
-                dic_fake_1['RandB'].append(random.randint(0,sample))
+            if randOrline == 'spot':
+                dic_fake_1['RandA'].append(50)
+                dic_fake_1['RandB'].append(50)
             elif randOrline == 'line':
                 dic_fake_1['RandA'].append(i)
                 dic_fake_1['RandB'].append(i)
-            elif randOrline == 'covar':
-                dic_fake_1['RandA'].append(i+ random.randint(0,sample/2))
-                dic_fake_1['RandB'].append(i+ random.randint(0,sample/2))
+            elif randOrline == 'vert':
+                dic_fake_1['RandA'].append(50)
+                dic_fake_1['RandB'].append(i)
             elif randOrline == 'triangle':
                 dic_fake_1['RandA'].append(i + random.randint(0,i))
                 dic_fake_1['RandB'].append(i + random.randint(0,i))
@@ -129,13 +125,13 @@ def randomBaseline(randOrline,str_iters):
 
     log(log_file, 'Make distribution plots')
     rep.addLineComment('Plots of distributions')
-    rep.changeColNumber(6)
-    plot_bins = [5,10,20,50]
-    plot_samples = [200,10000]
-    for pbin in plot_bins:
-        for psample in plot_samples:
-            log(log_file, 'Plots bins=' + str(pbin) + ' size=' + str(psample))
-            cm = dic_sample_bin[psample][pbin]
+    rep.changeColNumber(5)
+    #plot_bins = [5,10,20,50]
+    #plot_samples = [200,10000]
+    for den in densities:
+        for psample in samples:
+            log(log_file, 'Plots bins=' + str(den) + ' size=' + str(psample))
+            cm = dic_sample_bin[psample][den]
             cm_data = cm.data
             print(cm_data)
             df_rand = cm.randomiseData(cm_data,['RandA', 'RandB'])
@@ -143,13 +139,13 @@ def randomBaseline(randOrline,str_iters):
             stat,pvalue,A,D,B = div.stat,div.p_value,div.histAB,div.diffAB,div.convAB
             mean,sd,hist = div.p_mean,div.p_std,div.p_hist
             maxV = max(np.max(A),np.max(B))
-            rep.addPlot2d(cm_data, 'scatter', title=str(round(stat,3)) + ' orig, bins=' + str(pbin), geo_x='RandA', geo_y='RandB', hue='RandA')
+            rep.addPlot2d(cm_data, 'scatter', title=str(round(stat,3)) + ' orig, bins=' + str(den), geo_x='RandA', geo_y='RandB', hue='RandA')
             rep.addPlot2d(df_rand, 'scatter',title='rand, size=' + str(psample), geo_x='RandA', geo_y='RandB', hue='RandA')
-            if len(hist['divergence'])>0:
-                crit_val = round(cm.getCriticalValue('RandA','RandB',0.95),3)
-                rep.addPlot1d(hist,'histogram',geo_x='divergence',title='mean=' + str(round(mean,3)) + ' sd=' + str(round(sd,3)) + ' crit5%=' + str(crit_val))
-            else:
-                rep.addBoxComment(('No histogram calculated'))
+            #if len(hist['divergence'])>0:
+            #    crit_val = round(cm.getCriticalValue('RandA','RandB',0.95),3)
+            #    rep.addPlot1d(hist,'histogram',geo_x='divergence',title='mean=' + str(round(mean,3)) + ' sd=' + str(round(sd,3)) + ' crit5%=' + str(crit_val))
+            #else:
+            #    rep.addBoxComment(('No histogram calculated'))
             rep.addSurface(A,'Original Data',cmin=0,cmax=maxV,palette='Blues',colourbar=False)
             rep.addSurface(D, 'Difference Data stat=' + str(round(stat,3)) + ' pvalue=' + str(round(pvalue,3)), cmin=-1*maxV, cmax=maxV, palette='RdBu',colourbar=False)
             rep.addSurface(B, 'Convolved Data', cmin=0, cmax=maxV, palette='Reds',colourbar=False)

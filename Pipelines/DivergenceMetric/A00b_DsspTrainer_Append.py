@@ -10,8 +10,8 @@ if recreate:
     trainingset = pd.read_csv('Csv/SSTrainingSet_hb.csv')
     trainer = dssp.DsspTrainer(trainingset,fraction=fraction)
 
-csvs = ["Redo_GLY","High_GLY","High","Redo"]
-#csvs = []
+csvs = ["Redo_GLY","High_GLY","High","Redo",'SYN_GLY']
+#csvs = ['SYN_GLY']
 for tag in csvs:
     print('###', tag,'########################')
     csv = "Csv/PW_" + tag + "_01_Geometry.csv"

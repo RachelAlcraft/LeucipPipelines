@@ -17,6 +17,7 @@ Branch	Position	ResNo	AminoAcid	Atom	Coords	Rotation
 import math
 import random
 
+import numpy as np
 import pandas as pd
 from LeucipPy import GeoCalculate as calc
 
@@ -28,16 +29,19 @@ class RotationRules:
         self.prob_list = []
         self.prob_hat = []
         self.range_list = []
+        self.dist_list = []
         if rotationString != '{}':
             sets = rotationString.split(':')
             for st in sets:
-                parts = st.split('{')
+                dist = st[:1]
+                parts = st[1:].split('{')
                 prob = parts[0]
                 angle_range = parts[1].split(',')
                 rangeA = angle_range[0]
                 rangeB = angle_range[1][:-1]
                 self.prob_list.append(float(prob))
                 self.range_list.append([rangeA,rangeB])
+                self.dist_list.append(dist)
 
         for i in range(0,len(self.prob_list)):
             prob = self.prob_list[i]
@@ -46,18 +50,23 @@ class RotationRules:
                 self.prob_hat.append(i)
         #print(self.prob_hat)
 
-    def getRandomRotation(self):
+    def getRandomValue(self):
         # first randomly choose which probaility list to take from
         if len(self.prob_hat) > 0:
             random.shuffle(self.prob_hat)
             hat = self.prob_hat[0]
-            rangeA = int(self.range_list[hat][0])
-            rangeB = int(self.range_list[hat][1])
-            angle_hat = []
-            for i in range(rangeA,rangeB+1):
-                angle_hat.append(i)
-            random.shuffle(angle_hat)
-            angle = angle_hat[0]
+            rangeA = float(self.range_list[hat][0])
+            rangeB = float(self.range_list[hat][1])
+            dist = self.dist_list[hat]
+            angle = 0
+            if dist == 'R': #randomly drawn
+                angle_hat = []
+                for i in range(int(rangeA),int(rangeB)+1):
+                    angle_hat.append(i)
+                random.shuffle(angle_hat)
+                angle = angle_hat[0]
+            elif dist == 'N': #randomly drawn from a normal distribution
+                angle = np.random.normal(rangeA, rangeB)
             return angle
         return None
 

@@ -1,7 +1,7 @@
 import sys
 import subprocess as sub
 
-run_out_proc = False
+run_out_proc = True
 
 # INPUTS #
 #control which steps you want to run
@@ -13,8 +13,9 @@ iters = 1000
 runs = []
 #runs.append('Redo_GLY')
 #runs.append('Redo')
-#runs.append('High_GLY')
-runs.append('High')
+runs.append('High_GLY')
+#runs.append('High')
+#runs.append('SYN_GLY')
 
 for tag in runs:
     if run_out_proc:

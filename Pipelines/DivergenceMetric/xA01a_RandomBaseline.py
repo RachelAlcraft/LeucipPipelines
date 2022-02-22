@@ -14,7 +14,7 @@ for iters,density,vari in runs2:
     if run_out_proc:
         print('Starting subprocess',iters,density)
         exe = sys.executable
-        command = 'C:/Dev/Github/LeucipPipelines/Pipelines/DivergenceMetric/A01a_RandomBaseline_OutProc.py'
+        command = 'C:/Dev/Github/LeucipPipelines/Pipelines/DivergenceMetric/xA01a_RandomBaseline_OutProc.py'
         commands2 = str(iters)
         commands2 += ' ' + str(density)
         commands2 += ' ' + str(vari)
@@ -25,5 +25,5 @@ for iters,density,vari in runs2:
         pigP.kill()
     else:
         print('Running in process', iters,density)
-        import A01a_RandomBaseline_OutProc as inproca
+        import xA01a_RandomBaseline_OutProc as inproca
         inproca.randomBaselineOne(str(iters),str(density),str(vari))

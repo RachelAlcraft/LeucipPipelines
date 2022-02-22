@@ -9,7 +9,7 @@ PdbDirRedo = "C:/Dev/Github/ProteinDataFiles/pdb_data_redo/"
 PWAtomsGLY = ['N','CA','C','O','N-1','CA-1','C-1','O-1','N+1','CA+1','C+1','O+1']
 PWAtoms = ['CB','CB-1','CB+1']
 OtherDssp = ['N:O+2','N:O+3','N:O+4','O:N+2','O:N+3','O:N+4','O:{N}+2','N:{O}+2']
-OtherGLY = ['C-1:N:CA','N:CA:C','CA:C:N+1','CA:C:O','O:C:N+1','N:CA:C:N+1','CA-1:CA:CA+1','CA:C:O:N+1','C-1:N:CA:C','CA-1:C-1:N:CA','CA:C:N+1:CA+1']
+OtherGLY = ['C-1:N:CA','N:CA:C','CA:C:N+1','CA:C:O','O:C:N+1','N:CA:C:N+1','CA-1:CA:CA+1','CA:C:O:N+1','C-1:N:CA:C','CA-1:C-1:N:CA','CA:C:N+1:CA+1','N+1:CA+1:C+1','N+2:CA+2:C+2','N-1:CA-1:C-1','N-2:CA-2:C-2']
 Other = ['N:CA:CB','CB:CA:C','C-1:N:CA:CB','N:CA:CB:C','CB:CA:C:O','CB:CA:C:N+1']
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 PdbDirectory = "C:/Dev/Github/ProteinDataFiles/pdb_data/"
@@ -53,19 +53,36 @@ def runMakeCsv_Synthetic(ID,AllGeos,aa_filter=[]):
     import A0Class_AtomCollection as rot
 
     print('LeucipPipeline: - Creating synthetic data -----------------------------------------------------------')
-    omega_rules = rot.RotationRules('0.5{-180,-150}:0.5{150,180}')
-    phi_rules = rot.RotationRules('0.5{-180,-50}:0.5{50,180}')
-    psi_rules = rot.RotationRules('4{-180,-120}:1{-120,-50}:4{-50,50}:1{50,120}:4{120,180}')
+    omega_rules = rot.RotationRules('R0.5{-180,-150}:R0.5{150,180}')
+    phi_rules = rot.RotationRules('R1{-180,-50}:R1{50,180}:R5{50,150}:R5{-150,-50}')
+    psi_rules = rot.RotationRules('R4{-180,-120}:R1{-120,-50}:R10{-50,50}:R1{50,120}:R4{120,180}')
+    nca_rules = rot.RotationRules('N1{1.459,0.012}')
+    cac_rules = rot.RotationRules('N1{1.523,0.014}')
+    co_rules = rot.RotationRules('N1{1.233,0.011}')
+    cn_rules = rot.RotationRules('N1{1.332,0.017}')
+    ncac_rules = rot.RotationRules('N1{110.7,2.331}')
     strucs = []
     for i in range(0, 1000):
-        omega = int(omega_rules.getRandomRotation())
-        phi = int(phi_rules.getRandomRotation())
-        psi = int(psi_rules.getRandomRotation())
-        #print(omega, phi, psi)
+        omega = int(omega_rules.getRandomValue())
+        phi = int(phi_rules.getRandomValue())
+        psi = int(psi_rules.getRandomValue())
+        nca = float(nca_rules.getRandomValue())
+        cac = float(cac_rules.getRandomValue())
+        co = float(co_rules.getRandomValue())
+        cn = float(cn_rules.getRandomValue())
+        ncac = float(ncac_rules.getRandomValue())
+
+        print(omega, phi, psi,nca)
         geo = ext_geo.geometry('G')
         geo.omega = omega
         geo.phi = phi
         geo.psi_im1 = psi
+        geo.CA_N_length = nca
+        geo.C_O_length = co
+        geo.CA_C_length = cac
+        geo.N_CA_C_angle = ncac
+        geo.peptide_bond = cn
+
         structure = ext_pep.initialize_res(geo)
         structure.header = {}
         structure.header['resolution'] = 1
@@ -120,4 +137,4 @@ def run(run_for):
     hlp.printTime(start,end)
 
 ###########################################################
-run([5])
+run([1,2,3,4,5])

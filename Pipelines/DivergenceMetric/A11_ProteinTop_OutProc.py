@@ -34,18 +34,15 @@ def log(logfile, msg):
     f.close()
     print(msg)
 ########################################################################################
-def proteinTop(tag,str_iters,str_modify_csv,str_recreate_divergence,str_recreate_html):
+def proteinTop(tag,str_iters):
     csv_final = "Csv/PW_" + tag + "_01_Geometry.csv"
-    csv_correlations = "Csv/11_DivCorr_" + tag + ".csv"
+    csv_correlations = "Csv/10_DivCorr_" + tag + ".csv"
     html_filename = 'Html/11_ProteinTop_' + tag + str_iters + '.html'
     log_file = "Log/11_ProteinTop_" + tag + str_iters + ".log"
     title = 'Williams Divergence from Trivial: Most and Least Correlated ' + tag
-    openLog(log_file, str_iters + str_modify_csv + str_recreate_divergence + str_recreate_html)
+    openLog(log_file, str_iters)
     ###############################################################################################
     iters = int(str_iters)
-    modify_csv=str_modify_csv=='True'
-    recreate_divergence=str_recreate_divergence=='True'
-    recreate_html=str_recreate_html=='True'
     data = pd.read_csv(csv_final)
     geos = []
     for col in data.columns:
@@ -56,6 +53,7 @@ def proteinTop(tag,str_iters,str_modify_csv,str_recreate_divergence,str_recreate
 
     #geos = ['N:O','N:CA','CA:C','N:CA:C:N+1']
 
+    modify_csv = True
     if modify_csv:
         log(log_file,'### Applying filters to csv data')
         data = data.query('occupancy == 1')
@@ -70,16 +68,11 @@ def proteinTop(tag,str_iters,str_modify_csv,str_recreate_divergence,str_recreate
 
 
     log(log_file,'Create Williams Coefficient Maker')
-    wcc = wcm.WilliamsDivergenceMaker(data,geos,density=density,log=1,norm=False,pval_iters=iters,delay_load=(not recreate_divergence))
-
-    if recreate_divergence:
-        complete = wcc.getCoefficientsDataFrame()
-        complete = complete.sort_values(by='stat', ascending=False)
-        complete.to_csv(csv_correlations,index=False)
-        print(complete)
+    wcc = wcm.WilliamsDivergenceMaker(data,geos,density=density,log=1,norm=True,pval_iters=iters,delay_load=True)
 
     complete = pd.read_csv(csv_correlations)
     complete = complete.sort_values(by='stat', ascending=False)
+    recreate_html = True
     if recreate_html:
         used_geos = []
         log(log_file,'### Creating html reports')
@@ -101,7 +94,7 @@ def proteinTop(tag,str_iters,str_modify_csv,str_recreate_divergence,str_recreate
                 stat, pvalue, A, D, B = div.stat, div.p_value, div.histAB, div.diffAB, div.convAB
                 mean, sd, hist = div.p_mean, div.p_std, div.p_hist
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addPlot2d(cm_data, 'seaborn', title=str(round(stat, 3)) + ' orig', geo_x=geoA, geo_y=geoB, hue='aa+1',palette='tab20')
+                rep_mak.addPlot2d(cm_data, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20')
                 rep_mak.addPlot2d(df_rand, 'scatter', title='rand', geo_x=geoA, geo_y=geoB, hue=geoA)
                 if len(hist['divergence']) > 0:
                     crit_val = round(wcc.getCriticalValue(geoA, geoB, 0.95), 3)
@@ -132,7 +125,7 @@ def proteinTop(tag,str_iters,str_modify_csv,str_recreate_divergence,str_recreate
                 stat, pvalue, A, D, B = div.stat, div.p_value, div.histAB, div.diffAB, div.convAB
                 mean, sd, hist = div.p_mean, div.p_std, div.p_hist
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addPlot2d(cm_data, 'seaborn', title=str(round(stat, 3)) + ' orig', geo_x=geoA, geo_y=geoB, hue='aa+1',palette='tab20')
+                rep_mak.addPlot2d(cm_data, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20_r')
                 rep_mak.addPlot2d(df_rand, 'scatter', title='rand', geo_x=geoA, geo_y=geoB, hue=geoA)
                 if len(hist['divergence']) > 0:
                     crit_val = round(wcc.getCriticalValue(geoA, geoB, 0.95), 3)
@@ -148,7 +141,7 @@ def proteinTop(tag,str_iters,str_modify_csv,str_recreate_divergence,str_recreate
 
 ###################################################################################
 if __name__ == '__main__':
-    globals()['proteinTop'](sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5])
+    globals()['proteinTop'](sys.argv[1],sys.argv[2])
 
 
 

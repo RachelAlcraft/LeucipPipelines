@@ -13,8 +13,10 @@ iters = 1000
 runs = []
 runs.append(['High_GLY','SYN_GLY','N:CA:C'])
 runs.append(['High_GLY','SYN_GLY',''])
-runs.append(['High_GLY','SYN_GLY','N:CA:C:N+1'])
-runs.append(['High_GLY','SYN_GLY','C-1:N:CA:C'])
+runs.append(['Redo_GLY','SYN_GLY','N:CA:C'])
+runs.append(['Redo_GLY','SYN_GLY',''])
+runs.append(['Redo_GLY','High_GLY',''])
+
 
 for tag1,tag2, geoInc in runs:
     if run_out_proc:

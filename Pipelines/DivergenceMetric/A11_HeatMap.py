@@ -8,15 +8,18 @@ import numpy as np
 modify_csv,recreate_html = True,True
 
 runs = []
-#runs.append(['Redo_GLY','hb'])
-#runs.append(['Redo','hb'])
+runs.append(['Redo_GLY','hb'])
+runs.append(['Redo','hb'])
 runs.append(['High','hb'])
-#runs.append(['High_GLY','hb'])
+runs.append(['High_GLY','hb'])
+runs.append(['SYN_GLY','hb'])
 
 for tag,tag2 in runs:
     csv_final = "Csv/PW_" + tag + "_01_Geometry.csv"
-    html_filename = 'Html/10_HeatMap_' +tag+tag2+ '.html'
+    html_filename = 'Html/11_HeatMap_' +tag+tag2+ '.html'
     title = 'Williams Divergence from Trivial: Heatmaps ' + tag + tag2 # used at the header of the html report
+    csv_correlations = "Csv/10_DivCorr_" + tag + ".csv"
+    csv_summary = "Csv/10_SumCorr_" + tag + ".csv"
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     from LeucipPy import HtmlReportMaker as hrm
     from LeucipPy import WilliamsDivergenceMaker as wcm
@@ -43,13 +46,18 @@ for tag,tag2 in runs:
         print('### Creating html reports')
         rep_mak = hrm.HtmlReportMaker(title,html_filename, cols=2)
         print('Create Williams Coefficient Maker')
-        wcc = wcm.WilliamsDivergenceMaker(data,geos,density=1,log=1,norm=False,pval_iters=0)
+        wcc = wcm.WilliamsDivergenceMaker(data,geos,density=1,log=1,norm=True,pval_iters=0)
 
         complete = wcc.getCoefficientsDataFrame()
-        complete.to_csv('Csv/10_Correlations.csv')
+        complete = complete.sort_values(by='stat', ascending=False)
+        #complete.to_csv('Csv/10_Correlations.csv')
         summary = complete.groupby(by='geoA').sum()
         summary = summary.sort_values(by='stat')
-        summary.to_csv('Csv/10_Summary.csv')
+        #summary.to_csv('Csv/10_Summary.csv')
+
+        #complete = pd.read_csv(csv_correlations)
+        #complete = complete.sort_values(by='stat', ascending=False)
+        #summary = pd.read_csv(csv_summary)
 
 
         # remove the low correlations
