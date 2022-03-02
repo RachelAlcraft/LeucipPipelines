@@ -25,8 +25,8 @@ recreate_csv,modify_csv,recreate_html = False,False,True
 #directory of the pdb files
 dir = 'C:/Dev/Github/ProteinDataFiles/pdb_data_redo/'
 #full path, no path saves to current directory
-csv_final = "Clashes01.csv"
-html_filename = 'ClashesReport.html'
+csv_final = "Csv/Clashes01.csv"
+html_filename = 'Html/ClashesReport.html'
 #the geometric measures for geometry calculations
 geos = ['N:CA','CA:C','C:O','C:N+1','N:(N,S,O)+2','O:(N,S,O)+2']
 title = 'Clashes Report' # used at the header of the html report

@@ -36,6 +36,7 @@ class GlyGeo(Geo):
 
         self.phi=-120
         self.psi_im1=140
+        self.psi_next = 140
         self.omega=180.0
         self.peptide_bond=1.33
         self.CA_C_N_angle =116.642992978143
@@ -56,6 +57,7 @@ class AlaGeo(Geo):
 
         self.phi=-120
         self.psi_im1=140
+        self.psi_next = 140
         self.omega=180.0
         self.peptide_bond=1.33
         self.CA_C_N_angle =116.642992978143

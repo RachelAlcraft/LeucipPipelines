@@ -36,7 +36,10 @@ def log(logfile, msg):
 ########################################################################################
 def proteinTopDssp(tag):
     csv_final = "Csv/PW_" + tag + "_01_Geometry.csv_dssp.csv"
-    csv_correlations = "Csv/10_DivCorr_" + tag + ".csv"
+    tag_corr = tag
+    if 'IDEAL' in tag:
+        tag_corr = tag[:len(tag)-6]
+    csv_correlations = "Csv/10_DivCorr_" + tag_corr + ".csv"
     html_filename = 'Html/12_ProteinTop_dssp_' + tag + '.html'
     log_file = "Log/12_ProteinTop_dssp_" + tag + ".log"
     title = 'Williams Divergence from Trivial: Most and Least Correlated ' + tag

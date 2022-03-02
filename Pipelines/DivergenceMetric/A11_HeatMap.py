@@ -9,10 +9,11 @@ modify_csv,recreate_html = True,True
 
 runs = []
 runs.append(['Redo_GLY','hb'])
-runs.append(['Redo','hb'])
-runs.append(['High','hb'])
+#runs.append(['Redo','hb'])
+#runs.append(['High','hb'])
 runs.append(['High_GLY','hb'])
-runs.append(['SYN_GLY','hb'])
+runs.append(['Redo_GLY_IDEAL','hb'])
+runs.append(['High_GLY_IDEAL','hb'])
 
 for tag,tag2 in runs:
     csv_final = "Csv/PW_" + tag + "_01_Geometry.csv"

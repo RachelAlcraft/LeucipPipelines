@@ -10,7 +10,9 @@ if recreate:
     trainingset = pd.read_csv('Csv/SSTrainingSet_hb.csv')
     trainer = dssp.DsspTrainer(trainingset,fraction=fraction)
 
-csvs = ["Redo_GLY","High_GLY","High","Redo",'SYN_GLY']
+#csvs = ["Redo_GLY","High_GLY","High","Redo",'SYN_GLY']
+#csvs = ["Redo_GLY","High_GLY",'High_GLY_IDEAL','Redo_GLY_IDEAL']
+csvs = ['Redo_GLY_IDEAL','High_GLY_IDEAL']
 #csvs = ['SYN_GLY']
 for tag in csvs:
     print('###', tag,'########################')

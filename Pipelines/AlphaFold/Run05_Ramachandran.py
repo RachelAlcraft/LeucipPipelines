@@ -8,6 +8,8 @@ Script to determine simply the bond and angle lengths
 import numpy as np
 from scipy.stats import gaussian_kde
 
+from Pipelines.AlphaFold import A0Functions
+
 recreate_csv,recreate_html = False,True
 tag = 'Human'
 dir = 'C:/Dev/Github/ProteinDataFiles/pdb_alpha/' + tag + '/'
@@ -84,11 +86,20 @@ if recreate_html:
         print('--- scatters')
         x = df['C-1:N:CA:C']
         y = df['N:CA:C:N+1']
+
+
         f, ax = plt.subplots(figsize=(6, 6))
         sns.scatterplot(x=x, y=y, s=2, color=".15")
         sns.histplot(x=x, y=y, bins=200, pthresh=.1, cmap="Spectral_r")
         #print('--- skde 1')
-        #sns.kdeplot(x=x, y=y, levels=5, color="AliceBlue", linewidths=1)
+        #xn, yn = A0Functions.make_Kde_able(x, y, 50, 10000)
+        df_resampled = df.sample(frac=0.0001,replace=True)
+        print('Original length=', len(df.index))
+        print('Resampled length=',len(df_resampled.index))
+        xn = df_resampled['C-1:N:CA:C']
+        yn = df_resampled['N:CA:C:N+1']
+
+        sns.kdeplot(x=xn, y=yn, levels=10, color="AliceBlue", linewidths=0.5,bw_method=0.2)
         rep_mak.addPlotOnly(f,ax)
 
     rep_mak.printReport()

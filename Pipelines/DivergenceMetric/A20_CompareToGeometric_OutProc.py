@@ -36,14 +36,20 @@ def log(logfile, msg):
     f.close()
     print(msg)
 ########################################################################################
-def proteinTopCompare(tagA,tagB,geoInc):
+def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
+    dssp = str_dssp=='True'
+    sort_geo = str_sort_geo == 'True'
     geotag = geoInc.replace(':','_')
     if geotag != '':
         geotag = '_' + geotag
-    csv_finalA = "Csv/PW_" + tagA + "_01_Geometry.csv_dssp.csv"
-    csv_finalB = "Csv/PW_" + tagB + "_01_Geometry.csv_dssp.csv"
+    csv_finalA = "Csv/PW_" + tagA + "_01_Geometry.csv"
+    csv_finalB = "Csv/PW_" + tagB + "_01_Geometry.csv"
+    if dssp:
+        csv_finalA += "_dssp.csv"
+        csv_finalB += "_dssp.csv"
+
     csv_correlations = "Csv/10_DivCorr_" + tagA + ".csv"
-    html_filename = 'Html/20_ProteinCompare_' + tagA + '_' + tagB +geotag+ '.html'
+    html_filename = 'Html/20_ProteinCompare_' + tagA + '_' + tagB +geotag+str_sort_geo+ '.html'
     log_file = "Log/20_ProteinTop_dssp_" + tagA + tagB + geotag+ ".log"
     title = 'Williams Divergence from Trivial: Real versus Geometric: ' + tagA + ' vs ' + tagB
     if geoInc != '':
@@ -53,7 +59,10 @@ def proteinTopCompare(tagA,tagB,geoInc):
     data = pd.read_csv(csv_finalA)
     dataB = pd.read_csv(csv_finalB)
     complete = pd.read_csv(csv_correlations)
-    complete = complete.sort_values(by='stat', ascending=False)
+    if sort_geo:
+        complete = complete.sort_values(by='stat_ideal', ascending=False)
+    else:
+        complete = complete.sort_values(by='stat', ascending=False)
     geos = []
     for col in data.columns:
         #if ':' in col and 'info' not in col and '(' not in col and '{' not in col:
@@ -77,6 +86,15 @@ def proteinTopCompare(tagA,tagB,geoInc):
         #remove omega 0  or pre omega 0
         data = data.query('`CA:C:N+1:CA+1` >= 100')
         data = data.query('`CA-1:C-1:N:CA` >= 100')
+        if not dssp:
+            data['ss'] = 'x'
+            dataB['ss'] = 'x'
+
+        for gabs in geos_to_abs:
+            dataB[gabs] = abs(dataB[gabs])
+        dataB = dataB.query('`CA:C:N+1:CA+1` >= 100')
+        dataB = dataB.query('`CA-1:C-1:N:CA` >= 100')
+
 
 
     log(log_file, 'Create Williams Coefficient Maker')
@@ -94,6 +112,7 @@ def proteinTopCompare(tagA,tagB,geoInc):
             geoA = complete['geoA'].values[i]
             geoB = complete['geoB'].values[i]
             statOrig = complete['stat'].values[i]
+            statIdeal = complete['stat_ideal'].values[i]
             geoTagInc = True
             if geoInc != '':
                 geoTagInc = False
@@ -102,13 +121,13 @@ def proteinTopCompare(tagA,tagB,geoInc):
             if geoA + '_' + geoB not in used_geos and geoB + '_' + geoA not in used_geos and geoTagInc:
                 log(log_file, str(len(used_geos)) + ' ' + geoA + ' ' + geoB + '.........')
                 used_geos.append(geoA + '_' + geoB)
-                stat, A, D, B = wcc.compareCorrelations2D(dataB, geoA, geoB)
+                statx, A, D, B = wcc.compareToObserved(dataB, geoA, geoB)
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addLineComment(geoA + ' | ' + geoB + ', Divergence from random=' + str(round(statOrig,4)) + ', Divergence from synthetic=' + str(round(stat,4)))
-                rep_mak.addPlot2d(data, 'seaborn', title=str(round(statOrig, 3)) + ' orig', geo_x=geoA, geo_y=geoB, hue='ss', palette='tab20')
-                rep_mak.addPlot2d(dataB, 'seaborn', title='synthetic', geo_x=geoA, geo_y=geoB, hue='ss', palette='tab20')
+                rep_mak.addLineComment(geoA + ' | ' + geoB + ', Divergence from random=' + str(round(statOrig,4)) + ', Divergence from synthetic=' + str(round(statIdeal,4)))
+                rep_mak.addPlot2d(data, 'scatter', title=str(round(statOrig, 3)) + ' orig', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
+                rep_mak.addPlot2d(dataB, 'scatter', title='synthetic', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
                 rep_mak.addSurface(A, 'Original Data', cmin=0, cmax=maxV, palette='Blues', colourbar=False)
-                rep_mak.addSurface(D, 'Difference Data stat=' + str(round(stat, 3)), cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
+                rep_mak.addSurface(D, 'Difference Data stat=' + str(round(statIdeal, 3)), cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
                 rep_mak.addSurface(B, 'Geometric Data', cmin=0, cmax=maxV, palette='Reds', colourbar=False)
 
         log(log_file, '############# Least correlated ###########################')
@@ -120,6 +139,7 @@ def proteinTopCompare(tagA,tagB,geoInc):
             geoA = complete['geoA'].values[i]
             geoB = complete['geoB'].values[i]
             statOrig = complete['stat'].values[i]
+            statIdeal = complete['stat_ideal'].values[i]
             geoTagInc = True
             if geoInc != '':
                 geoTagInc = False
@@ -128,13 +148,13 @@ def proteinTopCompare(tagA,tagB,geoInc):
             if geoA + '_' + geoB not in last_geos and geoB + '_' + geoA not in last_geos and geoTagInc:
                 log(log_file, str(len(last_geos)) + ' ' + geoA + ' ' + geoB + '.........')
                 last_geos.append(geoA + '_' + geoB)
-                stat, A, D, B = wcc.compareCorrelations2D(dataB, geoA, geoB)
+                stat, A, D, B = wcc.compareToObserved(dataB, geoA, geoB)
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addLineComment(geoA + ' | ' + geoB + ', Divergence from random=' + str(round(statOrig,4)) + ', Divergence from synthetic=' + str(round(stat,4)))
-                rep_mak.addPlot2d(data, 'seaborn', title=str(round(statOrig, 3)) + ' orig', geo_x=geoA, geo_y=geoB,  hue='ss', palette='tab20')
-                rep_mak.addPlot2d(dataB, 'seaborn', title='synthetic', geo_x=geoA, geo_y=geoB, hue='ss', palette='tab20')
+                rep_mak.addLineComment(geoA + ' | ' + geoB + ', Divergence from random=' + str(round(statOrig,4)) + ', Divergence from synthetic=' + str(round(statIdeal,4)))
+                rep_mak.addPlot2d(data, 'scatter', title=str(round(statOrig, 3)) + ' orig', geo_x=geoA, geo_y=geoB,  hue=geoA, palette='mako')
+                rep_mak.addPlot2d(dataB, 'scatter', title='synthetic', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
                 rep_mak.addSurface(A, 'Original Data', cmin=0, cmax=maxV, palette='Blues', colourbar=False)
-                rep_mak.addSurface(D, 'Difference Data stat=' + str(round(stat, 3)), cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
+                rep_mak.addSurface(D, 'Difference Data stat=' + str(round(statIdeal, 3)), cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
                 rep_mak.addSurface(B, 'Geometric Data', cmin=0, cmax=maxV, palette='Reds', colourbar=False)
 
         log(log_file, 'Finally print out to ' + html_filename)
@@ -143,7 +163,7 @@ def proteinTopCompare(tagA,tagB,geoInc):
 
 ###################################################################################
 if __name__ == '__main__':
-    globals()['proteinTopCompare'](sys.argv[1],sys.argv[2],sys.argv[3])
+    globals()['proteinTopCompare'](sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5])
 
 
 

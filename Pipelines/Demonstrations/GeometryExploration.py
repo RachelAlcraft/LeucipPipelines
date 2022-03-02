@@ -22,8 +22,8 @@ recreate_csv,modify_csv,recreate_html = False,False,True
 #directory of the pdb files
 dir = 'C:/Dev/Github/ProteinDataFiles/pdb_data_redo/'
 #full path, no path saves to current directory
-csv_final = "C:/Dev/Github/LeucipPipelines/Pipelines/Geometry/04Compare/Csv/PW_High_GLY_02_Geometry.csv"
-html_filename = 'GeometryInspection.html'
+csv_final = "Csv/GeometyInspection.csv"
+html_filename = 'Html/GeometryInspection.html'
 #the geometric measures for geometry calculations
 geos = ['N:CA','CA:C','C:O','C:N+1','N:(N,S,O)+2','O:(N,S,O)+2']
 title = 'Geometry Inspection' # used at the header of the html report

@@ -11,9 +11,11 @@ tag = 'Redo' #Redo or High or Redo_GLY or High_GlY
 iters = 1000
 '''
 runs = []
+runs.append('Redo_GLY_IDEAL')
+runs.append('High_GLY_IDEAL')
 #runs.append('Redo_GLY')
+#runs.append('High_GLY')
 #runs.append('Redo')
-runs.append('High_GLY')
 #runs.append('High')
 #runs.append('SYN_GLY')
 

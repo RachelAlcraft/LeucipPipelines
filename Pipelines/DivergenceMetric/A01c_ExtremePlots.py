@@ -46,7 +46,7 @@ for randOrline,iters in runs:
 
     fake_geos =['geoA','geoB']
     samplesize = 1000
-    bins = 5
+    bins = 10
     density = samplesize/(bins*bins)
     normed = True
 
@@ -88,13 +88,13 @@ for randOrline,iters in runs:
     log(log_file, 'Plots bins=' + str(density) + ' size=' + str(samplesize))
     cm_data = cm.data
     print(cm_data)
-    df_rand = cm.randomiseData(cm_data,['geoA', 'geoB'])
+    df_rand = cm.randomiseData(cm_data[['geoA', 'geoB']])
     div = cm.getCorrelation(['geoA', 'geoB'])
     print(div.convAB)
     stat,pvalue,A,D,B = div.stat,div.p_value,div.histAB,div.diffAB,div.convAB
-    mean,sd,hist = div.p_mean,div.p_std,div.p_hist
+    hist = div.p_hist
     maxV = max(np.max(A),np.max(B))
-    rep.changeColNumber(8)
+    rep.changeColNumber(4)
     rep.addPlot2d(df_sample, 'scatter', title='Observed Data stat=' + str(round(stat,3)) + ' pvalue=' + str(round(pvalue,3)), geo_x='geoA', geo_y='geoB', hue='geoA')
     rep.addPlot2d(df_rand, 'scatter',title='rand, size=' + str(samplesize), geo_x='geoA', geo_y='geoB', hue='geoA')
     rep.addPlot1d(df_sample,'histogram','geoA')
@@ -102,9 +102,9 @@ for randOrline,iters in runs:
     rep.addSurface(A,'Original Data',cmin=0,cmax=maxV,palette='Blues',colourbar=False)
     rep.addSurface(D, 'Difference Data stat=' + str(round(stat,3)) + ' pvalue=' + str(round(pvalue,3)), cmin=-1*maxV, cmax=maxV, palette='RdBu',colourbar=False)
     rep.addSurface(B, 'Convolved Data', cmin=0, cmax=maxV, palette='Reds',colourbar=False)
-    if len(hist['divergence']) > 0:
-        crit_val = round(cm.getCriticalValue('geoA', 'geoB', 0.95), 3)
-        rep.addPlot1d(hist, 'histogram', geo_x='divergence', title='mean=' + str(round(mean, 3)) + ' sd=' + str(round(sd, 3)) + ' crit5%=' + str(crit_val),bins=50)
+    if len(hist['divergence_shuffled']) > 0:
+        rep.addPlot1d(hist, 'histogram', geo_x='divergence_shuffled', title='', overlay=True, alpha=0.5,palette='steelblue')
+        rep.addPlot1d(hist, 'histogram', geo_x='divergence_resampled', title='', alpha=0.5, palette='Firebrick')
     else:
         rep.addBoxComment(('No histogram calculated'))
 

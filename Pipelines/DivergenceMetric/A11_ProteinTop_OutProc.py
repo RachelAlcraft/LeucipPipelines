@@ -36,7 +36,11 @@ def log(logfile, msg):
 ########################################################################################
 def proteinTop(tag,str_iters):
     csv_final = "Csv/PW_" + tag + "_01_Geometry.csv"
-    csv_correlations = "Csv/10_DivCorr_" + tag + ".csv"
+    tag_corr = tag
+    if 'IDEAL' in tag:
+        tag_corr = tag[:len(tag)-6]
+    csv_correlations = "Csv/10_DivCorr_" + tag_corr + ".csv"
+    print(csv_correlations)
     html_filename = 'Html/11_ProteinTop_' + tag + str_iters + '.html'
     log_file = "Log/11_ProteinTop_" + tag + str_iters + ".log"
     title = 'Williams Divergence from Trivial: Most and Least Correlated ' + tag
@@ -90,15 +94,15 @@ def proteinTop(tag,str_iters):
                 div = wcc.getCorrelation([geoA,geoB])
                 cm_data = wcc.data
                 cm_data = cm_data.sort_values(by='aa+1')
-                df_rand = wcc.randomiseData(cm_data, [geoA, geoB])
+                df_rand = wcc.randomiseData(cm_data[[geoA, geoB]])
                 stat, pvalue, A, D, B = div.stat, div.p_value, div.histAB, div.diffAB, div.convAB
-                mean, sd, hist = div.p_mean, div.p_std, div.p_hist
+                hist = div.p_hist
                 maxV = max(np.max(A), np.max(B))
                 rep_mak.addPlot2d(cm_data, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20')
                 rep_mak.addPlot2d(df_rand, 'scatter', title='rand', geo_x=geoA, geo_y=geoB, hue=geoA)
-                if len(hist['divergence']) > 0:
-                    crit_val = round(wcc.getCriticalValue(geoA, geoB, 0.95), 3)
-                    rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence',  title='mean=' + str(round(mean, 3)) + ' sd=' + str(round(sd, 3)) + ' crit5%=' + str(crit_val),bins=50)
+                if len(hist['divergence_shuffled']) > 0:
+                    rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence_shuffled', title='', overlay=True, alpha=0.5,palette='steelblue')
+                    rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence_resampled', title='', alpha=0.5,palette='Firebrick')
                 else:
                     rep_mak.addBoxComment(('No histogram calculated'))
                 rep_mak.addSurface(A, 'Original Data', cmin=0, cmax=maxV, palette='Blues', colourbar=False)
@@ -123,13 +127,13 @@ def proteinTop(tag,str_iters):
                 cm_data = cm_data.sort_values(by='aa+1')
                 df_rand = wcc.randomiseData(cm_data, [geoA, geoB])
                 stat, pvalue, A, D, B = div.stat, div.p_value, div.histAB, div.diffAB, div.convAB
-                mean, sd, hist = div.p_mean, div.p_std, div.p_hist
+                hist = div.p_hist
                 maxV = max(np.max(A), np.max(B))
                 rep_mak.addPlot2d(cm_data, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20_r')
                 rep_mak.addPlot2d(df_rand, 'scatter', title='rand', geo_x=geoA, geo_y=geoB, hue=geoA)
-                if len(hist['divergence']) > 0:
-                    crit_val = round(wcc.getCriticalValue(geoA, geoB, 0.95), 3)
-                    rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence', title='mean=' + str(round(mean, 3)) + ' sd=' + str(round(sd, 3)) + ' crit5%=' + str(crit_val),bins=50)
+                if len(hist['divergence_shuffled']) > 0:
+                    rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence_shuffled', title='', overlay=True, alpha=0.5,palette='steelblue')
+                    rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence_resampled', title='', alpha=0.5,palette='Firebrick')
                 else:
                     rep_mak.addBoxComment(('No histogram calculated'))
                 rep_mak.addSurface(A, 'Original Data', cmin=0, cmax=maxV, palette='Blues', colourbar=False)

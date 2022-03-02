@@ -318,6 +318,6 @@ test_structures = [ "1aq7", "1gfl", "1nbw", "1vca", "2o6r", "2r83", "3cap", "3cu
 f_out=open("reconstructed_RMSDs.txt","w")
 f_out.write("PDB-ID\t\tlengthPhi-Psi-50\tPhi-Psi-150\tPhi-Psi\tPhi-Psi-Omega-50\tPhi-Psi-Omega-150\tPhi-Psi-Omega\tAll-Angles-50\tAll-Angles-150\tAll-Angles\tBackbone-50\tBackbone-150\tBackbone\n")
 for i in test_structures:
-    print i
+    print(i)
     f_out.write(test_PeptideBuilder(i))
 f_out.close()
