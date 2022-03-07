@@ -10,6 +10,7 @@ num_bottom = 10
 import sys
 sys.path.append('../1Library')
 import Helpers as help
+import A0_Globals as glob
 
 from LeucipPy import HtmlReportMaker as hrm
 
@@ -58,16 +59,11 @@ def proteinTopDssp(tag):
     #geos = ['N:O','N:CA','CA:C','N:CA:C:N+1']
     modify_csv = True
     if modify_csv:
-        log(log_file,'### Applying filters to csv data')
-        data = data.query('occupancy == 1')
-        data = data.query('bfactor <= 10')
-        geos_to_abs = ['CA:C:O:N+1', 'CA-1:C-1:N:CA', 'CA:C:N+1:CA+1']
+        log(log_file, '### Applying filters to csv data')
+        data = glob.trimData(data, 15, glob.getGeos(True))
+        geos_to_abs = glob.getGeosToAbs()
         for gabs in geos_to_abs:
-            data.loc[:,gabs] = abs(data.loc[:,gabs])
-        aa_list = ['ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE', 'LYS', 'LEU', 'MET', 'ASN', 'PRO', 'GLN', 'ARG','SER', 'THR', 'VAL', 'TRP', 'TYR']
-        data = data[data['aa'].isin(aa_list)]
-        data = data[data['aa-1'].isin(aa_list)]
-        data = data[data['aa+1'].isin(aa_list)]
+            data[gabs] = abs(data[gabs])
 
     recreate_html = True
     if recreate_html:

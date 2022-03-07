@@ -11,6 +11,7 @@ iters = 10
 import sys
 sys.path.append('../1Library')
 import Helpers as help
+import A0_Globals as glob
 
 from LeucipPy import HtmlReportMaker as hrm
 from LeucipPy import WilliamsDivergenceMaker as wcm
@@ -36,9 +37,8 @@ def log(logfile, msg):
     f.close()
     print(msg)
 ########################################################################################
-def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
+def proteinTopCompare(ID,tagA,tagB,geoInc,str_dssp,sort_key):
     dssp = str_dssp=='True'
-    sort_geo = str_sort_geo == 'True'
     geotag = geoInc.replace(':','_')
     if geotag != '':
         geotag = '_' + geotag
@@ -48,26 +48,26 @@ def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
         csv_finalA += "_dssp.csv"
         csv_finalB += "_dssp.csv"
 
-    csv_correlations = "Csv/10_DivCorr_" + tagA + ".csv"
-    html_filename = 'Html/20_ProteinCompare_' + tagA + '_' + tagB +geotag+str_sort_geo+ '.html'
+    csv_correlations = "Csv/10_DivCorr_" + ID + ".csv"
+    html_filename = 'Html/20_ProteinCompare_' + tagA + '_' + tagB +geotag+sort_key+ '.html'
     log_file = "Log/20_ProteinTop_dssp_" + tagA + tagB + geotag+ ".log"
     title = 'Williams Divergence from Trivial: Real versus Geometric: ' + tagA + ' vs ' + tagB
     if geoInc != '':
         title += ' Filtered on ' + geoInc
     openLog(log_file, csv_finalA)
+
     ###############################################################################################
     data = pd.read_csv(csv_finalA)
     dataB = pd.read_csv(csv_finalB)
+    data = glob.trimData(data, 15, glob.getGeos(True))
+    dataB = glob.trimData(dataB, 15, glob.getGeos(True))
     complete = pd.read_csv(csv_correlations)
-    if sort_geo:
-        complete = complete.sort_values(by='stat_ideal', ascending=False)
-    else:
-        complete = complete.sort_values(by='stat', ascending=False)
+    complete = complete.sort_values(by=sort_key, ascending=False)
     geos = []
     for col in data.columns:
-        #if ':' in col and 'info' not in col and '(' not in col and '{' not in col:
+        if ':' in col and 'info' not in col and '(' not in col and '{' not in col and col != 'N-2:CA-2:C-2':
         #if ':' in col and 'info' not in col and '{' not in col:
-        if ':' in col and 'info' not in col:
+        #if ':' in col and 'info' not in col:
             geos.append(col)
 
     #geos = ['N:O','N:CA','CA:C','N:CA:C:N+1']
@@ -76,7 +76,7 @@ def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
         log(log_file,'### Applying filters to csv data')
         data = data.query('occupancy == 1')
         data = data.query('bfactor <= 10')
-        geos_to_abs = ['CA:C:O:N+1', 'CA-1:C-1:N:CA', 'CA:C:N+1:CA+1']
+        geos_to_abs = glob.getGeosToAbs()
         for gabs in geos_to_abs:
             data.loc[:,gabs] = abs(data.loc[:,gabs])
         aa_list = ['ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE', 'LYS', 'LEU', 'MET', 'ASN', 'PRO', 'GLN', 'ARG','SER', 'THR', 'VAL', 'TRP', 'TYR']
@@ -111,23 +111,35 @@ def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
             i += 1
             geoA = complete['geoA'].values[i]
             geoB = complete['geoB'].values[i]
-            statOrig = complete['stat'].values[i]
-            statIdeal = complete['stat_ideal'].values[i]
+            stat = complete['stat'].values[i]
+            stat_ideal_paired = complete['stat_ideal_paired'].values[i]
+            stat_ideal_unpaired = complete['stat_ideal_unpaired'].values[i]
+            stat_paired_unpaired = complete['stat_paired_unpaired'].values[i]
+
+            stat_string = ' , v.random:' +  str(round(stat,4))
+            stat_string += ' v.unpaired:' +  str(round(stat_ideal_unpaired,4))
+            stat_string += ' v.paired:' + str(round(stat_ideal_paired, 4))
+            stat_string += ' paired/un:' + str(round(stat_paired_unpaired, 4))
+
             geoTagInc = True
             if geoInc != '':
                 geoTagInc = False
                 if geoA == geoInc or geoB == geoInc:
                     geoTagInc = True
-            if geoA + '_' + geoB not in used_geos and geoB + '_' + geoA not in used_geos and geoTagInc:
+            exc_geos = glob.excludeGeos()
+            exclude = False
+            if geoA in exc_geos or geoB in exc_geos:
+                exclude = True
+            if not exclude and geoA + '_' + geoB not in used_geos and geoB + '_' + geoA not in used_geos and geoTagInc:
                 log(log_file, str(len(used_geos)) + ' ' + geoA + ' ' + geoB + '.........')
                 used_geos.append(geoA + '_' + geoB)
                 statx, A, D, B = wcc.compareToObserved(dataB, geoA, geoB)
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addLineComment(geoA + ' | ' + geoB + ', Divergence from random=' + str(round(statOrig,4)) + ', Divergence from synthetic=' + str(round(statIdeal,4)))
-                rep_mak.addPlot2d(data, 'scatter', title=str(round(statOrig, 3)) + ' orig', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
-                rep_mak.addPlot2d(dataB, 'scatter', title='synthetic', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
+                rep_mak.addLineComment(geoA + ' | ' + geoB + stat_string)
+                rep_mak.addPlot2d(data, 'scatter', title=str(round(stat, 3)) + ' orig', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
+                rep_mak.addPlot2d(dataB, 'scatter', title='compare', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
                 rep_mak.addSurface(A, 'Original Data', cmin=0, cmax=maxV, palette='Blues', colourbar=False)
-                rep_mak.addSurface(D, 'Difference Data stat=' + str(round(statIdeal, 3)), cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
+                rep_mak.addSurface(D, 'Difference Data', cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
                 rep_mak.addSurface(B, 'Geometric Data', cmin=0, cmax=maxV, palette='Reds', colourbar=False)
 
         log(log_file, '############# Least correlated ###########################')
@@ -138,8 +150,16 @@ def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
             i -= 1
             geoA = complete['geoA'].values[i]
             geoB = complete['geoB'].values[i]
-            statOrig = complete['stat'].values[i]
-            statIdeal = complete['stat_ideal'].values[i]
+            stat = complete['stat'].values[i]
+            stat_ideal_paired = complete['stat_ideal_paired'].values[i]
+            stat_ideal_unpaired = complete['stat_ideal_unpaired'].values[i]
+            stat_paired_unpaired = complete['stat_paired_unpaired'].values[i]
+
+            stat_string = ' , v.random:' + str(round(stat, 4))
+            stat_string += ' v.unpaired:' + str(round(stat_ideal_unpaired, 4))
+            stat_string += ' v.paired:' + str(round(stat_ideal_paired, 4))
+            stat_string += ' paired/un:' + str(round(stat_paired_unpaired, 4))
+
             geoTagInc = True
             if geoInc != '':
                 geoTagInc = False
@@ -150,11 +170,11 @@ def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
                 last_geos.append(geoA + '_' + geoB)
                 stat, A, D, B = wcc.compareToObserved(dataB, geoA, geoB)
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addLineComment(geoA + ' | ' + geoB + ', Divergence from random=' + str(round(statOrig,4)) + ', Divergence from synthetic=' + str(round(statIdeal,4)))
-                rep_mak.addPlot2d(data, 'scatter', title=str(round(statOrig, 3)) + ' orig', geo_x=geoA, geo_y=geoB,  hue=geoA, palette='mako')
-                rep_mak.addPlot2d(dataB, 'scatter', title='synthetic', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
+                rep_mak.addLineComment(geoA + ' | ' + geoB + stat_string)
+                rep_mak.addPlot2d(data, 'scatter', title=str(round(stat, 3)) + ' orig', geo_x=geoA, geo_y=geoB,  hue=geoA, palette='mako')
+                rep_mak.addPlot2d(dataB, 'scatter', title='compare', geo_x=geoA, geo_y=geoB, hue=geoA, palette='mako')
                 rep_mak.addSurface(A, 'Original Data', cmin=0, cmax=maxV, palette='Blues', colourbar=False)
-                rep_mak.addSurface(D, 'Difference Data stat=' + str(round(statIdeal, 3)), cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
+                rep_mak.addSurface(D, 'Difference Data', cmin=-1 * maxV, cmax=maxV, palette='RdBu', colourbar=False)
                 rep_mak.addSurface(B, 'Geometric Data', cmin=0, cmax=maxV, palette='Reds', colourbar=False)
 
         log(log_file, 'Finally print out to ' + html_filename)
@@ -163,7 +183,7 @@ def proteinTopCompare(tagA,tagB,geoInc,str_dssp,str_sort_geo):
 
 ###################################################################################
 if __name__ == '__main__':
-    globals()['proteinTopCompare'](sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5])
+    globals()['proteinTopCompare'](sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6])
 
 
 

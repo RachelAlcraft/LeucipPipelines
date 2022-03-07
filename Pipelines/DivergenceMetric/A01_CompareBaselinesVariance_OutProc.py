@@ -5,6 +5,7 @@ import sys
 
 from LeucipPy import HtmlReportMaker as hrm
 from LeucipPy import WilliamsDivergenceMaker as wcm
+import A0_Globals as globals
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt

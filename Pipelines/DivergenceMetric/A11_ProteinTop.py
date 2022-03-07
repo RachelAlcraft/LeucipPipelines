@@ -13,10 +13,11 @@ iters = 1000
 runs = []
 #runs.append(['High',1000])
 #runs.append(['Redo',1000])
-runs.append(['Redo_GLY_IDEAL',1000])
-runs.append(['High_GLY_IDEAL',1000])
+#runs.append(['Redo_GLY_IDEAL',1000])
+#runs.append(['High_GLY_IDEAL',1000])
 #runs.append(['Redo_GLY',1000])
-#runs.append(['High_GLY',1000])
+runs.append(['High_GLY',1000])
+runs.append(['High',1000])
 
 #runs.append(['SYN_GLY',1000])
 

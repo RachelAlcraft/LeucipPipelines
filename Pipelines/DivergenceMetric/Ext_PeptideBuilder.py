@@ -1152,10 +1152,16 @@ def add_residue_from_geo(structure, geo):
         res=makeGly(segID, N, CA, C, O, geo)
 
     #RSA change TODO why are they doing this?
-    resRef['O'].set_coord(calculateCoordinates(res['N'], resRef['CA'], resRef['C'], C_O_length, CA_C_O_angle, 180.0))
+
+    # RSA this is the improper angle for the residue before
+    #resRef['O'].set_coord(calculateCoordinates(res['N'], resRef['CA'], resRef['C'], C_O_length, CA_C_O_angle, 180.0))
+    resRef['O'].set_coord(calculateCoordinates(res['N'], resRef['CA'], resRef['C'], C_O_length, CA_C_O_angle, N_CA_C_O_diangle))
 
     ghost= Atom("N", calculateCoordinates(res['N'], res['CA'], res['C'], peptide_bond, CA_C_N_angle, psi_im1), 0.0 , 0.0, " ","N", 0, "N")
-    res['O'].set_coord(calculateCoordinates( res['N'], res['CA'], res['C'], C_O_length, CA_C_O_angle, 180.0))
+
+    # RSA this the dihedral but it is overwritten
+    #res['O'].set_coord(calculateCoordinates( res['N'], res['CA'], res['C'], C_O_length, CA_C_O_angle, 180.0))
+    res['O'].set_coord(calculateCoordinates(res['N'], res['CA'], res['C'], C_O_length, CA_C_O_angle, N_CA_C_O_diangle))
 
     structure[0]['A'].add(res)
     return structure

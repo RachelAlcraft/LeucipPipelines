@@ -17,13 +17,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\Pipelines\Demonstrations\Clashes01.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\Pipelines\DivergenceMetric\Csv\PW_High_GLY_01_Geometry.csv">
           <value>
             <Attribute>

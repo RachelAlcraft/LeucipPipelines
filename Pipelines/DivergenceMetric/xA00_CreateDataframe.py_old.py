@@ -26,6 +26,7 @@ sys.path.append('../1Library')
 import Helpers as hlp
 from LeucipPy import BioPythonMaker as bpm
 from LeucipPy import GeometryMaker as dfm
+import A0Class_AtomCoordinates as coords
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 def runMakeCsv(ID,PdbFile,PdbDir,AllGeos,aa_filter=[]):
     print('LeucipPipeline: - Creating data -----------------------------------------------------------')
@@ -57,126 +58,58 @@ def runMakeCsv_Synthetic(ID,AllGeos):
 
     print('Load from', "Csv/" + ID + "_01_Geometry.csv")
     data = pd.read_csv("Csv/" + ID + "_01_Geometry.csv")
-    geos = {}
-    #dihedrals
-    geos['omega'] = 'CA:C:N+1:CA+1'
-    geos['phi'] = 'C-1:N:CA:C'
-    geos['psi'] = 'N:CA:C:N+1'
-    geos['ncaco'] = 'N:CA:C:O'
-    geos['cacon1'] = 'CA:C:O:N+1'
-    #angles
-    geos['tau'] = 'N:CA:C'
-    geos['taum1'] = 'C-1:N:CA'
-    geos['taup1'] = 'CA:C:N+1'
-    geos['caco'] = 'CA:C:O'
-    # bonds
-    geos['nca'] = 'N:CA'
-    geos['cac'] = 'CA:C'
-    geos['co'] = 'C:O'
-    geos['cn1'] = 'C:N+1'
     # trim the data of all the geos outliers
-    print('Length=',len(data.index))
-    for geo,atoms in geos.items():#default cut off is 25, so....
-        print(geo,min(data[atoms]),max(data[atoms]))
-        data = data.sort_values(by=atoms,ascending=True)
-        data = data.iloc[cut_off:, :]
-        data = data.sort_values(by=atoms, ascending=False)
-        data = data.iloc[cut_off:, :]
-        print(geo, min(data[atoms]), max(data[atoms]))
-    print('Length=', len(data.index))
+    for pair_rama in [0,1,2]:
+        csv_file = "Csv/" + ID + "_IDEAL_UNPAIRED_01_Geometry.csv"
+        if pair_rama == 1:
+            csv_file = "Csv/" + ID + "_IDEAL_PAIRED_01_Geometry.csv"
+        elif pair_rama == 2:
+            csv_file = "Csv/" + ID + "_IDEAL_SAMPLED_01_Geometry.csv"
 
+        print('LeucipPipeline: - Creating synthetic data',csv_file,' -----------------------------------------------------------')
+        strucs = []
+        for i in range(0, 1000):
+            structure = ext_pep.initialize_res(ext_geo.geometry('G'))
+            structure.header = {}
+            structure.header['resolution'] = 1
+            structure.id = 'X' + str(i)
+            last_psi = None
+            for i in range(0, 10):
+                param_gen = coords.AtomCoordinates(data, log=1)
+                if pair_rama == 1:
+                    geom, psi_next = param_gen.generateRamaGeo()
+                elif pair_rama == 2:
+                    geom,psi_next = param_gen.generateSampleGeo()
+                else:
+                    geom, psi_next = param_gen.generateAllRandomGeo()
 
-    print('LeucipPipeline: - Creating synthetic data -----------------------------------------------------------')
-    strucs = []
-    for i in range(0, 1000):
-        structure = ext_pep.initialize_res(geo)
-        structure.header = {}
-        structure.header['resolution'] = 1
-        structure.id = 'X' + str(i)
-        for i in range(0, 10):
-            #dihedrals
-            row = data.sample()
-            omega = row[geos['omega']].values[0]
-            row = data.sample()
-            phi = row[geos['phi']].values[0]
-            row = data.sample()
-            psi = row[geos['psi']].values[0]
-            row = data.sample()
-            ncaco =  row[geos['ncaco']].values[0]
-            row = data.sample()
-            #cacon1 = row[geos['cacon1']].values[0] #library doesn;t allow improer angles
-            #angles =
-            row = data.sample()
-            ncac = row[geos['tau']].values[0]
-            row = data.sample()
-            taum1 = row[geos['taum1']].values[0]
-            row = data.sample()
-            taup1 = row[geos['taup1']].values[0]
-            row = data.sample()
-            caco = row[geos['caco']].values[0]
-            # bonds =
-            row = data.sample()
-            nca = row[geos['nca']].values[0]
-            row = data.sample()
-            cac = row[geos['cac']].values[0]
-            row = data.sample()
-            co = row[geos['co']].values[0]
-            row = data.sample()
-            cn = row[geos['cn1']].values[0]
+                if last_psi != None:
+                    geom.psi_im1 = last_psi
+                structure = ext_pep.add_residue(structure, geom,last_psi)
+            strucs.append(structure)
 
+        print('### Creating dataframe for correlations #############')
+        geo_mak = dfm.GeometryMaker(strucs, log=1)
+        data = geo_mak.calculateGeometry(AllGeos, log=1)
 
-            print(omega, phi, psi,nca)
-            geo = ext_geo.geometry('G')
-            #dihedrals =
-            geo.omega = float(omega)
-            geo.phi = float(phi)
-            geo.psi_im1 = float(psi)
-            geo.N_CA_C_O_diangle = float(ncaco)
+        print('### Save dataframe ###############################')
+        #if len(aa_filter) > 0:
+        #    print('filter on',aa_filter)
+        #    data = data[data['aa'].isin(aa_filter)]
 
-            #angles =
-            geo.N_CA_C_angle = float(ncac)
-            geo.C_N_CA_angle = float(taum1)
-            geo.CA_C_N_angle= float(taup1)
-            geo.CA_C_O_angle = float(caco)
-            #lengths =
-            geo.CA_N_length = float(nca)
-            geo.C_O_length = float(co)
-            geo.CA_C_length = float(cac)
-            geo.peptide_bond = float(cn)
-
-            structure = ext_pep.add_residue(structure, geo)
-        strucs.append(structure)
-
-    print('### Creating dataframe for correlations #############')
-    geo_mak = dfm.GeometryMaker(strucs, log=1)
-    data = geo_mak.calculateGeometry(AllGeos, log=1)
-
-    print('### Save dataframe ###############################')
-    #if len(aa_filter) > 0:
-    #    print('filter on',aa_filter)
-    #    data = data[data['aa'].isin(aa_filter)]
-
-    print('Save to', "Csv/PW_" + ID + "_IDEAL_01_Geometry.csv")
-    data.to_csv("Csv/" + ID + "_IDEAL_01_Geometry.csv", index=False)
+        print('Save to', csv_file)
+        data.to_csv(csv_file, index=False)
 
 
 
 #***************************************************************************************************************
-def runMakeGeosPairwise(atoms_list):
-    #Make a pairwise listout of atoms
-    geos = []
-    for i in range(0, len(atoms_list)):
-        atmA = atoms_list[i]
-        for j in range(i+1, len(atoms_list)):
-            atmB = atoms_list[j]
-            if atmA != atmB:
-                geos.append(atmA + ':' + atmB)
-    return geos
+
 ##################################################################################
 def run(runs):
+    import A0_Globals as globals
     start = datetime.now()
-    geos = runMakeGeosPairwise(PWAtomsGLY + PWAtoms) + OtherGLY + OtherDssp + Other
-    geosGLY = runMakeGeosPairwise(PWAtomsGLY) + OtherGLY + OtherDssp
+    geos = globals.getGeos(False)
+    geosGLY = globals.getGeos(True)
     for run_for, obs_data, ideal_data in runs:
         print(run_for,obs_data,ideal_data)
         if obs_data:
@@ -199,5 +132,5 @@ def run(runs):
     hlp.printTime(start,end)
 
 ###########################################################
-run([[2,True,True]])
+run([[2,False,True]])
 #run([1,False,True],[2,False,True],[3,False,True],[4,False,True])

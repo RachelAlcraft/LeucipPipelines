@@ -33,9 +33,10 @@ class AtomCoordinates:
         # dihedrals
         geom.omega = self.getRandomParams(['CA-1:C-1:N:CA'],regen=True)['CA-1:C-1:N:CA']
         geom.phi = self.getRandomParams(['C-1:N:CA:C'],regen=True)['C-1:N:CA:C']
+        psi_next = self.getRandomParams(['N:CA:C:N+1'], regen=True)['N:CA:C:N+1']
         geom.psi_im1 = self.getRandomParams(['N-1:CA-1:C-1:N'],regen=True)['N-1:CA-1:C-1:N']
-        psi_next = self.getRandomParams(['N:CA:C:N+1'], regen=False)['N:CA:C:N+1']
-        geom.N_CA_C_O_diangle = self.getRandomParams(['N:CA:C:O'],regen=True)['N:CA:C:O']
+        geom.N_CA_C_O_diangle = self.getRandomParams(['N:CA-1:C-1:O-1'],regen=True)['N:CA-1:C-1:O-1'] #using improper instead
+        improper_next = self.getRandomParams(['N:CA-1:C-1:O-1'], regen=True)['N:CA-1:C-1:O-1']
         # angles =
         geom.N_CA_C_angle = self.getRandomParams(['N:CA:C'],regen=True)['N:CA:C']
         geom.C_N_CA_angle = self.getRandomParams(['C-1:N:CA'],regen=True)['C-1:N:CA']
@@ -46,16 +47,18 @@ class AtomCoordinates:
         geom.CA_C_length = self.getRandomParams(['CA:C'],regen=True)['CA:C']
         geom.C_O_length = self.getRandomParams(['C:O'],regen=True)['C:O']
         geom.peptide_bond = self.getRandomParams(['N:C-1'],regen=True)['N:C-1']
-        return geom, psi_next
+
+        return geom, psi_next,improper_next
 
     def generateSampleGeo(self):
         geom = ext_geo.geometry('G')
         # dihedrals
-        geom.omega = self.getRandomParams(['CA-1:C-1:N:CA'],regen=False)['CA-1:C-1:N:CA']
+        geom.omega = self.getRandomParams(['CA-1:C-1:N:CA'],regen=True)['CA-1:C-1:N:CA']
         geom.phi = self.getRandomParams(['C-1:N:CA:C'],regen=False)['C-1:N:CA:C']
         geom.psi_im1 = self.getRandomParams(['N-1:CA-1:C-1:N'],regen=False)['N-1:CA-1:C-1:N']
+        geom.N_CA_C_O_diangle = self.getRandomParams(['N:CA-1:C-1:O-1'],regen=False)['N:CA-1:C-1:O-1'] #using improper instead
         psi_next = self.getRandomParams(['N:CA:C:N+1'], regen=False)['N:CA:C:N+1']
-        geom.N_CA_C_O_diangle = self.getRandomParams(['N:CA:C:O'],regen=False)['N:CA:C:O']
+        improper_next = self.getRandomParams(['N:CA-1:C-1:O-1'], regen=False)['N:CA-1:C-1:O-1']
         # angles =
         geom.N_CA_C_angle = self.getRandomParams(['N:CA:C'],regen=False)['N:CA:C']
         geom.C_N_CA_angle = self.getRandomParams(['C-1:N:CA'],regen=False)['C-1:N:CA']
@@ -67,16 +70,17 @@ class AtomCoordinates:
         geom.C_O_length = self.getRandomParams(['C:O'],regen=False)['C:O']
         geom.peptide_bond = self.getRandomParams(['N:C-1'],regen=False)['N:C-1']
 
-        return geom,psi_next
+        return geom,psi_next,improper_next
 
     def generateRamaGeo(self):
         geom = ext_geo.geometry('G')
         # dihedrals
         geom.phi = self.getRandomParams(['C-1:N:CA:C'], regen=True)['C-1:N:CA:C']
-        geom.psi_im1 = self.getRandomParams(['N-1:CA-1:C-1:N'], regen=False)['N-1:CA-1:C-1:N']
         psi_next = self.getRandomParams(['N:CA:C:N+1'], regen=False)['N:CA:C:N+1']
+        geom.psi_im1 = self.getRandomParams(['N-1:CA-1:C-1:N'], regen=False)['N-1:CA-1:C-1:N']
         geom.omega = self.getRandomParams(['CA-1:C-1:N:CA'],regen=True)['CA-1:C-1:N:CA']
-        geom.N_CA_C_O_diangle = self.getRandomParams(['N:CA:C:O'],regen=True)['N:CA:C:O']
+        geom.N_CA_C_O_diangle = self.getRandomParams(['N:CA-1:C-1:O-1'],regen=True)['N:CA-1:C-1:O-1'] #using improper instead
+        improper_next = self.getRandomParams(['N:CA-1:C-1:O-1'], regen=True)['N:CA-1:C-1:O-1']
         # angles =
         geom.N_CA_C_angle = self.getRandomParams(['N:CA:C'],regen=True)['N:CA:C']
         geom.C_N_CA_angle = self.getRandomParams(['C-1:N:CA'],regen=True)['C-1:N:CA']
@@ -88,7 +92,7 @@ class AtomCoordinates:
         geom.C_O_length = self.getRandomParams(['C:O'],regen=True)['C:O']
         geom.peptide_bond = self.getRandomParams(['N:C-1'],regen=True)['N:C-1']
         #geom.peptide_bond = self.getRandomParams(['C:N+1'], regen=True)['C:N+1']
-        return geom,psi_next
+        return geom,psi_next,improper_next
 
 
 

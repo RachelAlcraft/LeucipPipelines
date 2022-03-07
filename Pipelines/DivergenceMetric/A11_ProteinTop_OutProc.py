@@ -10,6 +10,7 @@ num_bottom = 10
 import sys
 sys.path.append('../1Library')
 import Helpers as help
+import A0_Globals as glob
 
 from LeucipPy import HtmlReportMaker as hrm
 from LeucipPy import WilliamsDivergenceMaker as wcm
@@ -60,16 +61,11 @@ def proteinTop(tag,str_iters):
     modify_csv = True
     if modify_csv:
         log(log_file,'### Applying filters to csv data')
-        data = data.query('occupancy == 1')
-        data = data.query('bfactor <= 10')
-        geos_to_abs = ['CA:C:O:N+1', 'CA-1:C-1:N:CA', 'CA:C:N+1:CA+1']
+        log(log_file,'### Applying filters to csv data')
+        data = glob.trimData(data,15,glob.getGeos(True))
+        geos_to_abs = glob.getGeosToAbs()
         for gabs in geos_to_abs:
             data[gabs] = abs(data[gabs])
-        aa_list = ['ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE', 'LYS', 'LEU', 'MET', 'ASN', 'PRO', 'GLN', 'ARG','SER', 'THR', 'VAL', 'TRP', 'TYR']
-        data = data[data['aa'].isin(aa_list)]
-        data = data[data['aa-1'].isin(aa_list)]
-        data = data[data['aa+1'].isin(aa_list)]
-
 
     log(log_file,'Create Williams Coefficient Maker')
     wcc = wcm.WilliamsDivergenceMaker(data,geos,density=density,log=1,norm=True,pval_iters=iters,delay_load=True)
@@ -125,7 +121,7 @@ def proteinTop(tag,str_iters):
                 div = wcc.getCorrelation([geoA, geoB])
                 cm_data = wcc.data
                 cm_data = cm_data.sort_values(by='aa+1')
-                df_rand = wcc.randomiseData(cm_data, [geoA, geoB])
+                df_rand = wcc.randomiseData(cm_data[[geoA, geoB]])
                 stat, pvalue, A, D, B = div.stat, div.p_value, div.histAB, div.diffAB, div.convAB
                 hist = div.p_hist
                 maxV = max(np.max(A), np.max(B))
