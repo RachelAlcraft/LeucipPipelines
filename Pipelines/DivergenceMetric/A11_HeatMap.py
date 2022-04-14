@@ -28,6 +28,7 @@ for tag,tag2 in runs:
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
+    import A0_Globals as glob
     ###############################################################################################
     data = pd.read_csv(csv_final)
     geos = []
@@ -38,11 +39,9 @@ for tag,tag2 in runs:
             geos.append(col)
     if modify_csv:
         print('### Applying filters to csv data')
-        geos_to_abs = ['CA:C:O:N+1', 'CA-1:C-1:N:CA', 'CA:C:N+1:CA+1']
         data = data.query('occupancy == 1')
         data = data.query('bfactor <= 10')
-        for gabs in geos_to_abs:
-            data[gabs] = abs(data[gabs])
+        data = glob.trimDihs(data,15)
 
     if recreate_html:
         print('### Creating html reports')

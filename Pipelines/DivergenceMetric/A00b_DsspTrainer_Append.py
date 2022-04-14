@@ -8,11 +8,11 @@ recreate = True
 if recreate:
     print('### training classifier ########################')
     trainingset = pd.read_csv('Csv/SSTrainingSet_hb.csv')
-    trainer = dssp.DsspTrainer(trainingset,fraction=fraction)
+    trainer = dssp.DsspTrainer(trainingset,fraction=fraction,geos=['N:CA:C:N+1','C-1:N:CA:C'])
 
 #csvs = ["Redo_GLY","High_GLY","High","Redo",'SYN_GLY']
 #csvs = ["Redo_GLY","High_GLY",'High_GLY_IDEAL','Redo_GLY_IDEAL']
-csvs = ['High','High_GLY','High_IDEAL_PAIRED','High_IDEAL_UNPAIRED','High_GLY_IDEAL_PAIRED','High_GLY_IDEAL_UNPAIRED']
+csvs = ['High','High_IDEAL_PAIRED']
 
 #csvs = ['SYN_GLY']
 for tag in csvs:

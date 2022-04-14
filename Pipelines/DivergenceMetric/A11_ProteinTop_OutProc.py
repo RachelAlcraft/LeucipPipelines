@@ -61,11 +61,7 @@ def proteinTop(tag,str_iters):
     modify_csv = True
     if modify_csv:
         log(log_file,'### Applying filters to csv data')
-        log(log_file,'### Applying filters to csv data')
-        data = glob.trimData(data,15,glob.getGeos(True))
-        geos_to_abs = glob.getGeosToAbs()
-        for gabs in geos_to_abs:
-            data[gabs] = abs(data[gabs])
+        data = glob.trimDihs(data, 15)
 
     log(log_file,'Create Williams Coefficient Maker')
     wcc = wcm.WilliamsDivergenceMaker(data,geos,density=density,log=1,norm=True,pval_iters=iters,delay_load=True)
@@ -90,11 +86,15 @@ def proteinTop(tag,str_iters):
                 div = wcc.getCorrelation([geoA,geoB])
                 cm_data = wcc.data
                 cm_data = cm_data.sort_values(by='aa+1')
+
+                data_ab = glob.trimGeos(cm_data, 15, geoA, geoB)
                 df_rand = wcc.randomiseData(cm_data[[geoA, geoB]])
+                df_rand = glob.trimGeos(df_rand, 15, geoA, geoB)
+
                 stat, pvalue, A, D, B = div.stat, div.p_value, div.histAB, div.diffAB, div.convAB
                 hist = div.p_hist
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addPlot2d(cm_data, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20')
+                rep_mak.addPlot2d(data_ab, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20')
                 rep_mak.addPlot2d(df_rand, 'scatter', title='rand', geo_x=geoA, geo_y=geoB, hue=geoA)
                 if len(hist['divergence_shuffled']) > 0:
                     rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence_shuffled', title='', overlay=True, alpha=0.5,palette='steelblue')
@@ -121,11 +121,15 @@ def proteinTop(tag,str_iters):
                 div = wcc.getCorrelation([geoA, geoB])
                 cm_data = wcc.data
                 cm_data = cm_data.sort_values(by='aa+1')
+
+                data_ab = glob.trimGeos(cm_data, 15, geoA, geoB)
                 df_rand = wcc.randomiseData(cm_data[[geoA, geoB]])
+                df_rand = glob.trimGeos(df_rand, 15, geoA, geoB)
+
                 stat, pvalue, A, D, B = div.stat, div.p_value, div.histAB, div.diffAB, div.convAB
                 hist = div.p_hist
                 maxV = max(np.max(A), np.max(B))
-                rep_mak.addPlot2d(cm_data, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20_r')
+                rep_mak.addPlot2d(data_ab, 'seaborn', title='Observed Data stat=' + str(round(stat, 3)) + ' pvalue=' + str(round(pvalue, 3)), geo_x=geoA, geo_y=geoB, hue='aa',palette='tab20_r')
                 rep_mak.addPlot2d(df_rand, 'scatter', title='rand', geo_x=geoA, geo_y=geoB, hue=geoA)
                 if len(hist['divergence_shuffled']) > 0:
                     rep_mak.addPlot1d(hist, 'histogram', geo_x='divergence_shuffled', title='', overlay=True, alpha=0.5,palette='steelblue')

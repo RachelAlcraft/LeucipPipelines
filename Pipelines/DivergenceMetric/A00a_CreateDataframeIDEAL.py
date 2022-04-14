@@ -13,39 +13,43 @@ def makePdbSynthetic(data,numStrucs,lenChain,pair_rama):
     print('LeucipPipeline: - Creating synthetic data -----------------------------------------------------------')
     strucs = []
     last_psi = None
-    last_improper = None
-    for i in range(numStrucs):
-        geo = ext_geo.geometry('G')
+    param_gen = coords.AtomCoordinates(data, log=1)
+    for i in range(numStrucs+1):
+        amino_acid = param_gen.generateRandomAminoAcid()
+        geo = ext_geo.geometry(amino_acid)
         structure = ext_pep.initialize_res(geo)
         structure.header = {}
         structure.header['resolution'] = 1
         structure.id = 'X' + str(i)
-        for j in range(lenChain):
-            param_gen = coords.AtomCoordinates(data, log=1)
+        for j in range(lenChain+1):
+            nterm = False
+            cterm = False
+            if j == lenChain:
+                cterm = True
+            if j == 0:
+                nterm = True
+            amino_acid = param_gen.generateRandomAminoAcid()
             if pair_rama == 1:
-                geom, psi_next,improper_next = param_gen.generateRamaGeo()
+                geom, psi_next = param_gen.generateRamaGeo(amino_acid)
             elif pair_rama == 2:
-                geom,psi_next,improper_next = param_gen.generateSampleGeo()
+                geom,psi_next = param_gen.generateSampleGeo(amino_acid)
             else:
-                geom,psi_next,improper_next = param_gen.generateAllRandomGeo()
-
+                geom,psi_next = param_gen.generateAllRandomGeo(amino_acid)
             if last_psi != None:
                 geom.psi_im1 = last_psi
-                #geom.N_CA_C_O_diangle = last_improper which one?
-            structure = ext_pep.add_residue(structure, geom)
+            structure = ext_pep.add_residue(structure, geom,cterminal = cterm,nterminal=nterm)
             last_psi = psi_next
-            last_improper = improper_next
         strucs.append(structure)
     return strucs
 
-def makeGeometryCsv(strucs,pair_rama):
+def makeGeometryCsv(strucs,pair_rama,gly):
     print('Make geo csv')
-    geos = glob.getGeos(True)
+    geos = glob.getGeos(gly,True)
     print(geos)
     print('### Creating dataframe for correlations #############')
     geo_mak = gm.GeometryMaker(strucs, log=1)
     data = geo_mak.calculateGeometry(geos, log=1)
-    data = glob.trimData(data,15,geos)
+    data = glob.trimDihs(data,15)
 
     csv_file = "Csv/" + ID + "_IDEAL_UNPAIRED_01_Geometry.csv"
     if pair_rama == 1:
@@ -125,14 +129,14 @@ def makeHtmlReport(ID,data,orig,pair_rama):
     rep_mak.printReport()
 
 ################ MAIN CODE RUN HERE ##################
-IDS = ['PW_High_GLY','PW_High']
-for ID in IDS:
+IDS = [['PW_High',False]]
+for ID,gly in IDS:
     print('Load from', "Csv/" + ID + "_01_Geometry.csv")
     data = pd.read_csv("Csv/" + ID + "_01_Geometry.csv")
     for pair_rama in [0, 1]:
-        strucs = makePdbSynthetic(data, 5000,6,pair_rama)
+        strucs = makePdbSynthetic(data, 5000,3,pair_rama)
         io = PDBIO()
         io.set_structure(strucs[0])
         io.save('Csv/syn' + str(pair_rama) + '.pdb')
-        csv = makeGeometryCsv(strucs,pair_rama)
+        csv = makeGeometryCsv(strucs,pair_rama,gly)
         makeHtmlReport(ID,csv,data,pair_rama)

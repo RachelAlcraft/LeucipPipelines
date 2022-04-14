@@ -27,7 +27,9 @@ def runMakeCsv(ID,PdbFile,PdbDir,AllGeos,aa_filter):
     print('filter on', aa_filter)
     if aa_filter != {}:
         print('filter on',aa_filter,len(data.index))
-        data = geo_mak.filterDataFrame(data, inclusions=aa_filter)
+        data = geo_mak.filterDataFrame(data, inclusions={'aa':aa_filter})
+        data = geo_mak.filterDataFrame(data, inclusions={'aa+1': aa_filter})
+        data = geo_mak.filterDataFrame(data, inclusions={'aa-1': aa_filter})
         print('filterred', len(data.index))
 
     data = data.query('bfactor <= 10')
@@ -94,21 +96,21 @@ PdbDirRedo = "C:/Dev/Github/ProteinDataFiles/pdb_data_redo/"
 ID_high = 'PW_High'
 ID_redo = 'PW_Redo'
 
-runs = [1,2]
+runs = [1]
 for run in runs:
     start = datetime.now()
-    geos = globals.getGeos(False)
-    geosGLY = globals.getGeos(True)
+    geos = globals.getGeos(False,False)
+    geosGLY = globals.getGeos(True,False)
     for run_for in runs:
         print(run_for)
         if 1 == run_for:
-            data = runMakeCsv(ID_high,PdbFile,PdbDirHigh,geos,aa_filter=globals.aa_NO_gly)
+            data = runMakeCsv(ID_high,PdbFile,PdbDirHigh,geos,aa_filter=globals.aa_NO_gly_pro)
             makeHtmlReport(data,ID_high)
         if 2 == run_for:
             data = runMakeCsv(ID_high+'_GLY', PdbFile, PdbDirHigh, geosGLY,aa_filter=globals.aa_GLY)
             makeHtmlReport(data,ID_high+'_GLY')
         if 3 == run_for:
-            data = runMakeCsv(ID_redo, PdbFile, PdbDirRedo, geos,aa_filter=globals.aa_NO_gly)
+            data = runMakeCsv(ID_redo, PdbFile, PdbDirRedo, geos,aa_filter=globals.aa_NO_gly_pro)
             makeHtmlReport(data,ID_redo)
         if 4 == run_for:
             data = runMakeCsv(ID_redo+'_GLY', PdbFile, PdbDirRedo, geosGLY,aa_filter=globals.aa_GLY)

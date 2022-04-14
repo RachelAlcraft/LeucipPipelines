@@ -1063,7 +1063,7 @@ def getReferenceResidue(structure):
         
     return resRef
 
-def add_residue_from_geo(structure, geo):
+def add_residue_from_geo(structure, geo,nterminal=False, cterminal=False):
     '''Adds a residue to chain A model 0 of the given structure, and
     returns the new structure. The residue to be added is determined by
     the geometry object given as second argument.
@@ -1163,7 +1163,11 @@ def add_residue_from_geo(structure, geo):
     #res['O'].set_coord(calculateCoordinates( res['N'], res['CA'], res['C'], C_O_length, CA_C_O_angle, 180.0))
     res['O'].set_coord(calculateCoordinates(res['N'], res['CA'], res['C'], C_O_length, CA_C_O_angle, N_CA_C_O_diangle))
 
-    structure[0]['A'].add(res)
+    if nterminal:
+        #structure[0]['A'].child_list[-1] =res
+        resRef = res
+    elif not cterminal: #RSA we don;t add the terminal position it is only there to tidy up the oxygen position
+        structure[0]['A'].add(res)
     return structure
 
 
@@ -1182,7 +1186,7 @@ def make_extended_structure(AA_chain):
     return struc
 
     
-def add_residue(structure, residue, phi=-120, psi_im1=140, omega=-370):
+def add_residue(structure, residue, phi=-120, psi_im1=140, omega=-370,nterminal = False,cterminal=False):
     '''Adds a residue to chain A model 0 of the given structure, and
     returns the new structure. The residue to be added can be specified
     in two ways: either as a geometry object (in which case
@@ -1203,7 +1207,7 @@ def add_residue(structure, residue, phi=-120, psi_im1=140, omega=-370):
         if omega>-361:
             geo.omega=omega
     
-    add_residue_from_geo(structure, geo)
+    add_residue_from_geo(structure, geo,nterminal,cterminal)
     return structure
     
 

@@ -9,8 +9,7 @@ sys.path.append('../1Library')
 import Helpers as help
 import A0_Globals as glob
 
-from LeucipPy import HtmlReportMaker as hrm
-from LeucipPy import WilliamsDivergenceMaker as wcm
+from nDimAssociations import AlcraftWilliamsAssociation as awa
 
 import pandas as pd
 from datetime import datetime as dt
@@ -51,51 +50,68 @@ def orderCorrelations(tag):
             geos.append(col)
 
     #geos = ['N:O','N:CA','CA:C','N:CA:C:N+1']
+    geos = glob.getGeos(False,True)
 
     modify_csv = True
     if modify_csv:
         log(log_file,'### Applying filters to csv data')
-        data = glob.trimData(data,15,geos)
-        data_ideal_paired = glob.trimData(data_ideal_paired, 15, geos)
-        data_ideal_unpaired = glob.trimData(data_ideal_unpaired, 15, geos)
-        geos_to_abs = glob.getGeosToAbs()
-        for gabs in geos_to_abs:
-            data[gabs] = abs(data[gabs])
-            data_ideal_paired[gabs] = abs(data_ideal_paired[gabs])
-            data_ideal_unpaired[gabs] = abs(data_ideal_unpaired[gabs])
-        #data = data.query('`CA:C:N+1:CA+1` >= 100')
-        #data = data.query('`CA-1:C-1:N:CA` >= 100')
+        data = glob.trimDihs(data,15)
+        data_ideal_paired = glob.trimDihs(data_ideal_paired, 15)
+        data_ideal_unpaired = glob.trimDihs(data_ideal_unpaired,15)
 
     log(log_file,'Create Williams Coefficient Maker')
-    wcc = wcm.WilliamsDivergenceMaker(data,geos,bins=10,log=1,norm=True,pval_iters=0,delay_load=False)
+    aw_triv = awa.AlcraftWilliamsAssociation(data,bins=10,piters=0)
+    aw_paired = awa.AlcraftWilliamsAssociation(data, data_ideal_paired,bins=10, piters=0)
+    aw_unpaired = awa.AlcraftWilliamsAssociation(data, data_ideal_unpaired,bins=10, piters=0)
+    aw_pairunpaired = awa.AlcraftWilliamsAssociation(data_ideal_paired, data_ideal_unpaired, bins=10, piters=0)
+    kl_triv = awa.AlcraftWilliamsAssociation(data, bins=10, piters=0,method='k-l')
+    kl_paired = awa.AlcraftWilliamsAssociation(data, data_ideal_paired, bins=10, piters=0,method='k-l')
+    kl_unpaired = awa.AlcraftWilliamsAssociation(data, data_ideal_unpaired, bins=10, piters=0,method='k-l')
+    kl_pairunpaired = awa.AlcraftWilliamsAssociation(data_ideal_paired, data_ideal_unpaired, bins=10, piters=0,method='k-l')
     print('Continuing...')
-    #wcc_ideal = wcm.WilliamsDivergenceMaker(data_ideal, geos, density=density, log=1, norm=True, pval_iters=0, delay_load=False)
 
     recreate_divergence = True
     if recreate_divergence:
-        complete = wcc.getCoefficientsDataFrame()
-        complete = complete.sort_values(by='stat', ascending=False)
-        ideals_p = []
-        ideals_u = []
-        ideals_up = []
-        for i in range(len(complete.index)):
-            geoA = complete['geoA'].values[i]
-            geoB = complete['geoB'].values[i]
-            #print(geoA,geoB)
-            tpla = wcc.compareTwoDistributions(data[[geoA,geoB]],data_ideal_paired[[geoA,geoB]],geoA,geoB)
-            tplb = wcc.compareTwoDistributions(data[[geoA, geoB]], data_ideal_unpaired[[geoA, geoB]], geoA, geoB)
-            tplc = wcc.compareTwoDistributions(data_ideal_paired[[geoA, geoB]], data_ideal_unpaired[[geoA, geoB]], geoA, geoB)
-            ideals_p.append(tpla[0])
-            ideals_u.append(tplb[0])
-            ideals_up.append(tplc[0])
-        complete['stat_ideal_paired'] = ideals_p
-        complete['stat_ideal_unpaired'] = ideals_u
-        complete['stat_paired_unpaired'] = ideals_up
-        complete.to_csv(csv_correlations,index=False)
-        print(complete)
+        dic_stats = {}
+        dic_stats['geoA'] = []
+        dic_stats['geoB'] = []
+        dic_stats['stat_trivial'] = []
+        dic_stats['stat_obs_paired'] = []
+        dic_stats['stat_obs_unpaired'] = []
+        dic_stats['stat_paired_unpaired'] = []
+        dic_stats['kl_trivial'] = []
+        dic_stats['kl_obs_paired'] = []
+        dic_stats['kl_obs_unpaired'] = []
+        dic_stats['kl_paired_unpaired'] = []
+        for a in range(len(geos)):
+            geoA = geos[a]
+            for b in range(a+1,len(geos)):
+                geoB = geos[b]
+                if (a+b)%100 == 0:
+                    print(a,b,'/',len(geos),geoA,geoB)
+                s1 = aw_triv.addAssociation([geoA,geoB])
+                s2 = aw_paired.addAssociation([geoA,geoB])
+                s3 = aw_unpaired.addAssociation([geoA,geoB])
+                s4 = aw_pairunpaired.addAssociation([geoA,geoB])
+                s5 = kl_triv.addAssociation([geoA, geoB])
+                s6 = kl_paired.addAssociation([geoA, geoB])
+                s7 = kl_unpaired.addAssociation([geoA, geoB])
+                s8 = kl_pairunpaired.addAssociation([geoA, geoB])
+                dic_stats['stat_trivial'].append(s1.metric)
+                dic_stats['stat_obs_paired'].append(s2.metric)
+                dic_stats['stat_obs_unpaired'].append(s3.metric)
+                dic_stats['stat_paired_unpaired'].append(s4.metric)
+                dic_stats['kl_trivial'].append(s5.metric)
+                dic_stats['kl_obs_paired'].append(s6.metric)
+                dic_stats['kl_obs_unpaired'].append(s7.metric)
+                dic_stats['kl_paired_unpaired'].append(s8.metric)
+                dic_stats['geoA'].append(geoA)
+                dic_stats['geoB'].append(geoB)
 
+        complete = pd.DataFrame.from_dict(dic_stats)
+        complete.to_csv(csv_correlations,index=False)
         summary = complete.groupby(by='geoA').sum()
-        summary = summary.sort_values(by='stat')
+        summary = summary.sort_values(by='stat_trivial')
         summary.to_csv(csv_summary)
 
 ###################################################################################
@@ -103,7 +119,7 @@ def orderCorrelations(tag):
 #orderCorrelations('SYN_GLY')
 orderCorrelations('High')
 #orderCorrelations('Redo')
-orderCorrelations('High_GLY')
+#orderCorrelations('High_GLY')
 #orderCorrelations('Redo_GLY')
 #orderCorrelations('Redo_GLY_IDEAL')
 #orderCorrelations('High_GLY_IDEAL')
