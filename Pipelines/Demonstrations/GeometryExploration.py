@@ -17,7 +17,7 @@ This script:
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # INPUTS #
 #control which steps you want to run
-recreate_csv,modify_csv,recreate_html = False,False,True
+recreate_csv,modify_csv,recreate_html = True,True,True
 # directory and file names
 #directory of the pdb files
 dir = 'C:/Dev/Github/ProteinDataFiles/pdb_data_redo/'
@@ -36,7 +36,7 @@ title = 'Geometry Inspection' # used at the header of the html report
 ### You can specify second closest eg SG:{SG@2} means second closest SG atom and O:{CB@2}+3 second clostes carbon beta not within 3 residues
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 from LeucipPy import BioPythonMaker as bpm
-from LeucipPy import DataFrameMaker as dfm
+from LeucipPy import GeometryMaker as dfm
 from LeucipPy import HtmlReportMaker as hrm
 import pandas as pd
 ###############################################################################################
@@ -44,7 +44,7 @@ if recreate_csv:
     print('### Load structures from BioPython #############')
     strucs = bpm.loadPdbStructures([],dir,extension='ent',prefix='pdb',log=2)
     print('### Creating dataframe for correlations #############')
-    geo_mak = dfm.DataFrameMaker(strucs, log=1)
+    geo_mak = dfm.GeometryMaker(strucs, log=1)
     data = geo_mak.calculateGeometry(geos, log=1)
     print('### Save dataframe ###############################')
     data.to_csv(csv_final , index=False)

@@ -17,6 +17,34 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\Pipelines\AdjustedDensity\Csv\StructureCompareB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\AdjustedDensity\Csv\pdb100.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Demonstrations\Csv\SSTrainingSet_hb.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Pipelines\Demonstrations\Csv\StructureCompareA.csv_dssp.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="|" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\Pipelines\DivergenceMetric\Csv\PW_High_GLY_01_Geometry.csv">
           <value>
             <Attribute>

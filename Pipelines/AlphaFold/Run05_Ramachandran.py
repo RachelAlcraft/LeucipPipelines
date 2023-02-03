@@ -83,7 +83,7 @@ if recreate_html:
     #https: // seaborn.pydata.org / examples / layered_bivariate_plot.html
     # Draw a combo histogram and scatterplot with density contours
     for df in [dataHigh,dataMiddle,dataLow]:
-        print('--- scatters')
+        print('--- probability')
         x = df['C-1:N:CA:C']
         y = df['N:CA:C:N+1']
 
